@@ -26,9 +26,9 @@ db.connect(err=>{
 
 
 //Get all data - GET
-app.get('/protocollocem',(req, res)=>{
+app.get('/test',(req, res)=>{
     
-    let qr = `SELECT * FROM protocollocem`;
+    let qr = `SELECT * FROM test`;
     
     db.query(qr, (err, result)=>{
         if(err){
@@ -50,9 +50,9 @@ app.get('/protocollocem',(req, res)=>{
 });
 
 //Get single data - GET
-app.get('/protocollocem/:idprot', (req, res)=>{
-    let gID = req.params.idprot;
-    let qr =`SELECT * FROM protocollocem WHERE idprot = ${gID}`;
+app.get('/test/:id', (req, res)=>{
+    let gID = req.params.id;
+    let qr =`SELECT * FROM test WHERE id = ${gID}`;
     db.query(qr, (err, result)=>{
         if(err){
             console.log(err);
@@ -75,38 +75,37 @@ app.get('/protocollocem/:idprot', (req, res)=>{
     })
 });
 
-// Create data - POST
-app.post('/protocollocem', (req, res)=>{
+// Create data - POST per la tabella "test"
+app.post('/test', (req, res)=>{
     console.log(req.body, 'createdata');
     
-    let senso = req.body.senso;
-    let data = req.body.data;
-    let protocollo = req.body.protocollo;
+    let nome = req.body.nome;
+    let cognome = req.body.cognome;
+    let indirizzo = req.body.indirizzo;
     
-    let qr = `INSERT INTO protocollocem (senso, data, protocollo) VALUES ('${senso}', '${data}', '${protocollo}')`;
+    let qr = `INSERT INTO test (Nome, Cognome, Indirizzo) VALUES ('${nome}', '${cognome}', '${indirizzo}')`;
     
     db.query(qr, (err, result)=>{
         if(err){console.log(err);}
         
         console.log(result, 'result');
         res.send({
-            message: 'data inserted',
+            message: 'data inserted into test table',
         });
     })
 });
 
-// Updata single data - PUT
-app.put('/protocollocem/:idprot', (req, res)=>{
-    
+// Update single data - PUT
+app.put('/test/:id', (req, res)=>{
     console.log(req.body, 'update data');
+
+    let nome = req.body.nome;
+    let cognome = req.body.cognome;
+    let indirizzo = req.body.indirizzo;
     
-    let senso = req.body.senso;
-    let data = req.body.data;
-    let protocollo = req.body.protocollo;
+    let id = req.params.id;
     
-    let idprot = req.params.idprot;
-    
-    let qr = `UPDATE protocollocem SET senso = '${senso}', data = '${data}', protocollo = '${protocollo}' where idprot=${idprot}`;
+    let qr = `UPDATE test SET Nome = '${nome}', Cognome = '${cognome}', Indirizzo = '${indirizzo}' where id=${id}`;
     
     db.query(qr, (err, result)=>{
         if(err){console.log(err);}
@@ -116,10 +115,10 @@ app.put('/protocollocem/:idprot', (req, res)=>{
     })
 });
 
-// DELETE single data
-app.get('/protocollocem/:idprot', (req, res)=>{
-    let idprot = req.params.idprot;
-    let qr = `DELETE FROM protocollocem WHERE idprot = ${idprot}`;
+// Delete single data
+app.delete('/test/:id', (req, res)=>{
+    let id = req.params.id;
+    let qr = `DELETE FROM test WHERE id = ${id}`;
     db.query(qr, (err, result)=>{
         if(err){console.log(err);}
         
@@ -128,6 +127,7 @@ app.get('/protocollocem/:idprot', (req, res)=>{
         });
     })
 });
+
 
 //CHECK SERVER
 app.listen(3000, ()=>{
