@@ -27,6 +27,10 @@
             <button type="submit" class="btn btn-primary">Invia richiesta</button>
         </form>
 
+        <!-- GET DATA BUTTON -->
+        <button id="getDataBtn" class="btn btn-info mt-4">Carica dati</button>        
+        <div id="responseData"></div>
+
         <!-- UPDATE FORM -->
         <form id="updateForm" class="mt-4">
             <div class="mb-3">
@@ -50,6 +54,22 @@
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
+
+        // Gestione richiesta GET - Carica i dati quando il pulsante viene cliccato
+        document.getElementById('getDataBtn').addEventListener('click', async function() {
+            try {
+                const response = await axios.get('http://localhost:3000/test');
+                const responseData = response.data;
+                // Mostra i dati ottenuti nella pagina HTML
+                const dataHtml = responseData.data.map(item => {
+                    return `<p>ID: ${item.id}, Nome: ${item.Nome}, Cognome: ${item.Cognome}, Indirizzo: ${item.Indirizzo}</p>`;
+                }).join('');
+                document.getElementById('responseData').innerHTML = dataHtml;
+            } catch (error) {
+                console.error('Errore durante la richiesta GET:', error);
+            }
+        });
+
         //Gestione richiesta POST
         document.getElementById('apiForm').addEventListener('submit', async function(event) {
             event.preventDefault();

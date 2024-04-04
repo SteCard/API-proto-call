@@ -25,25 +25,26 @@ db.connect(err=>{
 });
 
 
-//Get all data - GET
-app.get('/test',(req, res)=>{
-    
+//Get all data - GET dalla tabella "test"
+app.get('/test', (req, res)=>{
     let qr = `SELECT * FROM test`;
-    
     db.query(qr, (err, result)=>{
         if(err){
             console.log(err, 'errs');
-            // error response
             return res.status(500).send({
                 message: 'Error occurred while fetching data',
                 error: err
             });
         }
         
-        if(result.length>0){
+        if(result.length > 0){
             res.send({
                 message: 'all data',
                 data: result
+            });
+        } else {
+            res.send({
+                message: 'No data found'
             });
         }
     });
