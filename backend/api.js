@@ -75,6 +75,60 @@ app.get('/protocollocem/:idprot', (req, res)=>{
     })
 });
 
+// Create data - POST
+app.post('/protocollocem', (req, res)=>{
+    console.log(req.body, 'createdata');
+    
+    let senso = req.body.senso;
+    let data = req.body.data;
+    let protocollo = req.body.protocollo;
+    
+    let qr = `INSERT INTO protocollocem (senso, data, protocollo) VALUES ('${senso}', '${data}', '${protocollo}')`;
+    
+    db.query(qr, (err, result)=>{
+        if(err){console.log(err);}
+        
+        console.log(result, 'result');
+        res.send({
+            message: 'data inserted',
+        });
+    })
+});
+
+// Updata single data - PUT
+app.put('/protocollocem/:idprot', (req, res)=>{
+    
+    console.log(req.body, 'update data');
+    
+    let senso = req.body.senso;
+    let data = req.body.data;
+    let protocollo = req.body.protocollo;
+    
+    let idprot = req.params.idprot;
+    
+    let qr = `UPDATE protocollocem SET senso = '${senso}', data = '${data}', protocollo = '${protocollo}' where idprot=${idprot}`;
+    
+    db.query(qr, (err, result)=>{
+        if(err){console.log(err);}
+        res.send({
+            message: 'data updated',
+        });
+    })
+});
+
+// DELETE single data
+app.delete('/protocollocem/:idprot', (req, res)=>{
+    let idprot = req.params.idprot;
+    let qr = `DELETE FROM protocollocem WHERE idprot = ${idprot}`;
+    db.query(qr, (err, result)=>{
+        if(err){console.log(err);}
+        
+        res.send({
+            message: 'data deleted'
+        });
+    })
+});
+
 //CHECK SERVER
 app.listen(3000, ()=>{
     console.log('Server running...');
