@@ -6,23 +6,35 @@
     <title>Test API</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
-<body>
+<body data-bs-theme="dark">
     <div class="container">
         <h1 class="mt-5 mb-4">Test API</h1>
 
         <!-- POST FORM -->    
         <form id="apiForm">
             <div class="mb-3">
-                <label for="nome" class="form-label">Nome:</label>
-                <input type="text" class="form-control" id="nome" name="nome" required>
+                <label for="senso" class="form-label">Senso:</label>
+                <input type="text" class="form-control" id="senso" name="senso" required>
             </div>
             <div class="mb-3">
-                <label for="cognome" class="form-label">Cognome:</label>
-                <input type="text" class="form-control" id="cognome" name="cognome" required>
+                <label for="data" class="form-label">Data:</label>
+                <input type="date" class="form-control" id="data" name="data" required>
             </div>
             <div class="mb-3">
-                <label for="indirizzo" class="form-label">Indirizzo:</label>
-                <input type="text" class="form-control" id="indirizzo" name="indirizzo" required>
+                <label for="protocollo" class="form-label">Protocollo:</label>
+                <input type="text" class="form-control" id="protocollo" name="protocollo" required>
+            </div>
+            <div class="mb-3">
+                <label for="autore" class="form-label">Autore:</label>
+                <input type="text" class="form-control" id="autore" name="autore" required>
+            </div>
+            <div class="mb-3">
+                <label for="mittente" class="form-label">Mittente:</label>
+                <input type="text" class="form-control" id="mittente" name="mittente" required>
+            </div>
+            <div class="mb-3">
+                <label for="destinatario" class="form-label">Destinatario:</label>
+                <input type="text" class="form-control" id="destinatario" name="destinatario" required>
             </div>
             <button type="submit" class="btn btn-primary">Invia richiesta</button>
         </form>
@@ -54,37 +66,40 @@
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-
-        // Gestione richiesta GET - Carica i dati quando il pulsante viene cliccato
+        // Gestione richiesta GET
         document.getElementById('getDataBtn').addEventListener('click', async function() {
             try {
-                const response = await axios.get('http://localhost:3000/test');
-                const responseData = response.data;
-                // Mostra i dati ottenuti nella pagina HTML
-                const dataHtml = responseData.data.map(item => {
-                    return `<p>ID: ${item.id}, Nome: ${item.Nome}, Cognome: ${item.Cognome}, Indirizzo: ${item.Indirizzo}</p>`;
-                }).join('');
-                document.getElementById('responseData').innerHTML = dataHtml;
+                const response = await axios.get('http://localhost:3000/protocollocem');
+                const data = response.data.data;
+                const dataHtml = data.map(item => `<p>ID: ${item.id}, Senso: ${item.senso}, Data: ${item.data}, Protocollo: ${item.protocollo}, Autore: ${item.autore}, Mittente: ${item.mittente}, Destinatario: ${item.destinatario}</p>`).join('');
+                document.getElementById('responseData').innerHTML = dataHtml;            
             } catch (error) {
                 console.error('Errore durante la richiesta GET:', error);
             }
         });
 
-        //Gestione richiesta POST
+        // Gestione richiesta POST
         document.getElementById('apiForm').addEventListener('submit', async function(event) {
             event.preventDefault();
-            const nome = document.getElementById('nome').value;
-            const cognome = document.getElementById('cognome').value;
-            const indirizzo = document.getElementById('indirizzo').value;
+            const senso = document.getElementById('senso').value;
+            const data = document.getElementById('data').value;
+            const protocollo = document.getElementById('protocollo').value;
+            const autore = document.getElementById('autore').value;
+            const mittente = document.getElementById('mittente').value;
+            const destinatario = document.getElementById('destinatario').value;
+
             try {
-                const response = await axios.post('http://localhost:3000/test', {
-                    nome,
-                    cognome,
-                    indirizzo
+                const response = await axios.post('http://localhost:3000/protocollocem', {
+                    senso,
+                    data,
+                    protocollo,
+                    autore,
+                    mittente,
+                    destinatario
                 });
-                document.getElementById('response').innerText = JSON.stringify(response.data);
+                console.log('Dati inseriti correttamente:', response.data.message);
             } catch (error) {
-                console.error('Errore durante la richiesta:', error);
+                console.error('Errore durante la richiesta POST:', error);
             }
         });
 
@@ -92,14 +107,21 @@
         document.getElementById('updateForm').addEventListener('submit', async function(event) {
             event.preventDefault();
             const idUpdate = document.getElementById('idUpdate').value;
-            const nome = document.getElementById('nome').value;
-            const cognome = document.getElementById('cognome').value;
-            const indirizzo = document.getElementById('indirizzo').value;
+            const senso = document.getElementById('senso').value;
+            const data = document.getElementById('data').value;
+            const protocollo = document.getElementById('protocollo').value;
+            const autore = document.getElementById('autore').value;
+            const mittente = document.getElementById('mittente').value;
+            const destinatario = document.getElementById('destinatario').value;
+
             try {
-                const response = await axios.put(`http://localhost:3000/test/${idUpdate}`, {
-                    nome,
-                    cognome,
-                    indirizzo
+                const response = await axios.put(`http://localhost:3000/protocollocem/${idUpdate}`, {
+                    senso,
+                    data,
+                    protocollo,
+                    autore,
+                    mittente,
+                    destinatario
                 });
                 document.getElementById('response').innerText = JSON.stringify(response.data);
             } catch (error) {
@@ -112,7 +134,7 @@
             event.preventDefault();
             const idDelete = document.getElementById('idDelete').value;
             try {
-                const response = await axios.delete(`http://localhost:3000/test/${idDelete}`);
+                const response = await axios.delete(`http://localhost:3000/protocollocem/${idDelete}`);
                 document.getElementById('response').innerText = JSON.stringify(response.data);
             } catch (error) {
                 console.error('Errore durante la richiesta di delete:', error);

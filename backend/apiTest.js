@@ -1,154 +1,139 @@
-const express = require ('express');
-const bodyparser = require ('body-parser');
-const cors = require ('cors');
-const mysql = require ('mysql2');
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const mysql = require('mysql2');
 const axios = require('axios');
 
 const app = express();
 
 app.use(cors());
-app.use (bodyparser.json());
+app.use(bodyParser.json());
 
-//DB connection
+// DB connection
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '', 
-    database: 'dropfaci_arpab_2',
-    port: 3306
-})
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'dropfaci_arpab_2',
+  port: 3306
+});
 
-//Check DB connection
-db.connect(err=>{
-    if(err){console.log(err, 'db err');}
+// Check DB connection
+db.connect(err => {
+  if (err) {
+    console.log(err, 'Errore di connessione al database');
+  } else {
     console.log('Database connected...');
+  }
 });
 
-
-//Get all data - GET dalla tabella "test"
-app.get('/test', (req, res)=>{
-    let qr = `SELECT * FROM test`;
-    db.query(qr, (err, result)=>{
-        if(err){
-            console.log(err, 'errs');
-            return res.status(500).send({
-                message: 'Error occurred while fetching data',
-                error: err
-            });
-        }
-        
-        if(result.length > 0){
-            res.send({
-                message: 'all data',
-                data: result
-            });
-        } else {
-            res.send({
-                message: 'No data found'
-            });
-        }
-    });
+// GET all data from "protocollocem" table
+app.get('/protocollocem', (req, res) => {
+  let qr = `SELECT * FROM protocollocem`;
+  db.query(qr, (err, result) => {
+    if (err) {
+      console.log(err, 'Errore durante la query GET');
+      res.status(500).send({
+        message: 'Errore durante il recupero dei dati',
+        error: err
+      });
+    } else {
+      res.send({
+        message: 'Tutti i dati dalla tabella protocollocem',
+        data: result
+      });
+    }
+  });
 });
 
-//Get single data - GET
-app.get('/test/:id', (req, res)=>{
-    let gID = req.params.id;
-    let qr =`SELECT * FROM test WHERE id = ${gID}`;
-    db.query(qr, (err, result)=>{
-        if(err){
-            console.log(err);
-            return res.status(500).send({
-                message: 'Error occurred while fetching data',
-                error: err
-            });
-        }
-        if(result.length>0){
-            res.send({
-                message: 'Single data',
-                data: result
-            });
-        }
-        else {
-            res.send({
-                message: 'data not found'
-            });
-        }
-    })
+// GET single data from "protocollocem" table
+app.get('/protocollocem/:idprot', (req, res) => {
+  let gID = req.params.idprot;
+  let qr = `SELECT * FROM protocollocem WHERE idprot = ${gID}`;
+  db.query(qr, (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Error occurred while fetching data',
+        error: err
+      });
+    }
+    if (result.length > 0) {
+      res.send({
+        message: 'Single data from protocollocem',
+        data: result
+      });
+    } else {
+      res.send({
+        message: 'Data not found'
+      });
+    }
+  });
 });
 
-// Create data - POST per la tabella "test"
-app.post('/test', (req, res)=>{
-    console.log(req.body, 'createdata');
-    
-    let nome = req.body.nome;
-    let cognome = req.body.cognome;
-    let indirizzo = req.body.indirizzo;
-    
-    let qr = `INSERT INTO test (Nome, Cognome, Indirizzo) VALUES ('${nome}', '${cognome}', '${indirizzo}')`;
-    
-    db.query(qr, (err, result)=>{
-        if(err){console.log(err);}
-        
-        console.log(result, 'result');
-        res.send({
-            message: 'data inserted into test table',
-        });
-    })
+// Create data - POST
+app.post('/protocollocem', (req, res) => {
+  const { senso, data, protocollo, autore, mittente, destinatario } = req.body;
+
+  // Insert data into the database
+  let qr = `INSERT INTO protocollocem (senso, data, protocollo, autore, mittente, destinatario) 
+            VALUES (?, ?, ?, ?, ?, ?)`;
+  db.query(qr, [senso, data, protocollo, autore, mittente, destinatario], (err, result) => {
+    if (err) {
+      console.log(err, 'Errore durante la query INSERT');
+      res.status(500).send({
+        message: 'Errore durante l\'inserimento dei dati',
+        error: err
+      });
+    } else {
+      res.send({
+        message: 'Dati inseriti correttamente nella tabella protocollocem'
+      });
+    }
+  });
 });
 
 // Update single data - PUT
-app.put('/test/:id', (req, res)=>{
-    console.log(req.body, 'update data');
+app.put('/protocollocem/:idprot', (req, res) => {
+  const idprot = req.params.idprot;
+  const { senso, data, protocollo, autore, mittente, destinatario } = req.body;
 
-    let nome = req.body.nome;
-    let cognome = req.body.cognome;
-    let indirizzo = req.body.indirizzo;
-    
-    let id = req.params.id;
-    
-    let qr = `UPDATE test SET Nome = '${nome}', Cognome = '${cognome}', Indirizzo = '${indirizzo}' where id=${id}`;
-    
-    db.query(qr, (err, result)=>{
-        if(err){console.log(err);}
-        res.send({
-            message: 'data updated',
-        });
-    })
+  let qr = `UPDATE protocollocem 
+            SET senso=?, data=?, protocollo=?, autore=?, mittente=?, destinatario=?
+            WHERE idprot=?`;
+  db.query(qr, [senso, data, protocollo, autore, mittente, destinatario, idprot], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Error occurred while updating data',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Data updated'
+    });
+  });
 });
 
 // Delete single data
-app.delete('/test/:id', (req, res)=>{
-    let id = req.params.id;
-    let qr = `DELETE FROM test WHERE id = ${id}`;
-    db.query(qr, (err, result)=>{
-        if(err){console.log(err);}
-        
-        res.send({
-            message: 'data deleted'
-        });
-    })
+app.delete('/protocollocem/:idprot', (req, res) => {
+  const idprot = req.params.idprot;
+  let qr = `DELETE FROM protocollocem WHERE idprot = ?`;
+  db.query(qr, [idprot], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Error occurred while deleting data',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Data deleted'
+    });
+  });
 });
 
-
-//CHECK SERVER
-app.listen(3000, ()=>{
-    console.log('Server running...');
+// CHECK SERVER
+app.listen(3000, () => {
+  console.log('Server running...');
 });
-
-// AXIOS - it should work already
-// const axios = require('axios');
-
-// const apiKey = 'b354f15b912658275ccb7eeefcd33fe92d56092e43de1dc6326b20e8e2a36b46';
-
-// axios.get('https://api.example.com/data', {
-//   headers: {
-//     'X-API-Key': apiKey,
-//     'Accept': 'application/json' // Specifica eventuali altri header richiesti
-//   }
-// })
-// .then(response => {
-//   console.log(response.data);
-// })
-// .catch(error => {
-//   console.error('Errore nella richiesta API:', error);
-// });
