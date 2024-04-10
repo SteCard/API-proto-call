@@ -8,7 +8,7 @@
 </head>
 <body data-bs-theme="dark">
     <div class="container">
-        <h1 class="mt-5 mb-4">Test API</h1>
+        <h1 class="mt-5 mb-4 text-center">Test API</h1>
 
         <!-- POST FORM -->    
         <form id="apiForm">
@@ -39,9 +39,42 @@
             <button type="submit" class="btn btn-primary">Invia richiesta</button>
         </form>
 
-        <!-- GET DATA BUTTON -->
-        <button id="getDataBtn" class="btn btn-info mt-4">Carica dati</button>        
-        <div id="responseData"></div>
+        <!-- Dropdown for limit -->
+        <div class="row mt-3">
+            <!-- Dropdown for selecting the limit -->
+            <div class="col-auto">
+                <label for="limitSelect" class="form-label">Visualizza:</label>
+                <select class="form-select" id="limitSelect">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+        
+            <!-- GET DATA BUTTON -->
+            <div class="col-auto mt-4">
+                <button id="getDataBtn" class="btn btn-info">Carica dati</button>
+            </div>
+        </div>
+        
+        
+        <!-- Table to display data -->
+        <div class="table-responsive mt-2">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Senso</th>
+                        <th>Data</th>
+                        <th>Protocollo</th>
+                        <th>Autore</th>
+                        <th>Mittente</th>
+                        <th>Destinatario</th>
+                    </tr>
+                </thead>
+                <tbody id="responseData"></tbody>
+            </table>
+        </div>
 
         <!-- UPDATE FORM -->
         <form id="updateForm" class="mt-4">
@@ -68,11 +101,26 @@
     <script>
         // Gestione richiesta GET
         document.getElementById('getDataBtn').addEventListener('click', async function() {
+            const limit = document.getElementById('limitSelect').value;
             try {
-                const response = await axios.get('http://localhost:3000/protocollocem');
+                const response = await axios.get(`http://localhost:3000/protocollocem?limit=${limit}`);
                 const data = response.data.data;
-                const dataHtml = data.map(item => `<p>ID: ${item.id}, Senso: ${item.senso}, Data: ${item.data}, Protocollo: ${item.protocollo}, Autore: ${item.autore}, Mittente: ${item.mittente}, Destinatario: ${item.destinatario}</p>`).join('');
-                document.getElementById('responseData').innerHTML = dataHtml;            
+                const tableBody = document.getElementById('responseData');
+                tableBody.innerHTML = ''; // Clear previous data
+
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.idprot}</td>
+                        <td>${item.senso}</td>
+                        <td>${item.data}</td>
+                        <td>${item.protocollo}</td>
+                        <td>${item.autore}</td>
+                        <td>${item.mittente}</td>
+                        <td>${item.destinatario}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
             } catch (error) {
                 console.error('Errore durante la richiesta GET:', error);
             }

@@ -27,23 +27,43 @@ db.connect(err => {
   }
 });
 
-// GET all data from "protocollocem" table
+// // GET all data from "protocollocem" table
+// app.get('/protocollocem', (req, res) => {
+//   let qr = `SELECT * FROM protocollocem`;
+//   db.query(qr, (err, result) => {
+//     if (err) {
+//       console.log(err, 'Errore durante la query GET');
+//       res.status(500).send({
+//         message: 'Errore durante il recupero dei dati',
+//         error: err
+//       });
+//     } else {
+//       res.send({
+//         message: 'Tutti i dati dalla tabella protocollocem',
+//         data: result
+//       });
+//     }
+//   });
+// });
+
+// GET data with optional limit
 app.get('/protocollocem', (req, res) => {
-  let qr = `SELECT * FROM protocollocem`;
-  db.query(qr, (err, result) => {
-    if (err) {
-      console.log(err, 'Errore durante la query GET');
-      res.status(500).send({
-        message: 'Errore durante il recupero dei dati',
-        error: err
-      });
-    } else {
-      res.send({
-        message: 'Tutti i dati dalla tabella protocollocem',
-        data: result
-      });
-    }
-  });
+    const limit = req.query.limit || 10; // Default limit is 10 if not provided
+    let qr = `SELECT * FROM protocollocem LIMIT ${limit}`;
+    db.query(qr, (err, result) => {
+        if (err) {
+            console.log(err, 'Errore durante la query GET');
+            res.status(500).send({
+                message: 'Errore durante il recupero dei dati',
+                error: err
+            });
+        } else {
+            res.send({
+                message: `Primi ${limit} dati`,
+                data: result
+            });
+        }
+    });
 });
 
 // GET single data from "protocollocem" table
