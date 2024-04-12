@@ -10,36 +10,10 @@
     <div class="container">
         <h1 class="mt-5 mb-4 text-center">Test API</h1>
 
-        <!-- POST FORM -->    
-        <form id="apiForm">
-            <div class="mb-3">
-                <label for="senso" class="form-label">Senso:</label>
-                <input type="text" class="form-control" id="senso" name="senso" required>
-            </div>
-            <div class="mb-3">
-                <label for="data" class="form-label">Data:</label>
-                <input type="date" class="form-control" id="data" name="data" required>
-            </div>
-            <div class="mb-3">
-                <label for="protocollo" class="form-label">Protocollo:</label>
-                <input type="text" class="form-control" id="protocollo" name="protocollo" required>
-            </div>
-            <div class="mb-3">
-                <label for="autore" class="form-label">Autore:</label>
-                <input type="text" class="form-control" id="autore" name="autore" required>
-            </div>
-            <div class="mb-3">
-                <label for="mittente" class="form-label">Mittente:</label>
-                <input type="text" class="form-control" id="mittente" name="mittente" required>
-            </div>
-            <div class="mb-3">
-                <label for="destinatario" class="form-label">Destinatario:</label>
-                <input type="text" class="form-control" id="destinatario" name="destinatario" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Invia richiesta</button>
-        </form>
+        <!-- CREATE BUTTON -->
+        <a href="create.html" class="btn btn-primary mt-3">Crea nuovo protocollo</a>
 
-        <!-- Dropdown for limit -->
+        <!-- VIEW DATI (GET)-->
         <div class="row mt-3">
             <!-- Dropdown for selecting the limit -->
             <div class="col-auto">
@@ -57,7 +31,6 @@
             </div>
         </div>
         
-        
         <!-- Table to display data -->
         <div class="table-responsive mt-2">
             <table class="table table-striped">
@@ -70,124 +43,119 @@
                         <th>Autore</th>
                         <th>Mittente</th>
                         <th>Destinatario</th>
+                        <th>Azioni</th>
                     </tr>
                 </thead>
                 <tbody id="responseData"></tbody>
             </table>
         </div>
 
-        <!-- UPDATE FORM -->
-        <form id="updateForm" class="mt-4">
-            <div class="mb-3">
-                <label for="idUpdate" class="form-label">ID dell'elemento da aggiornare:</label>
-                <input type="text" class="form-control" id="idUpdate" name="idUpdate" required>
-            </div>
-            <button type="submit" class="btn btn-success">Aggiorna elemento</button>
-        </form>
-
         <!-- DELETE FORM -->
-        <form id="deleteForm" class="mt-4">
+        <!-- <form id="deleteForm" class="mt-4">
             <div class="mb-3">
                 <label for="idDelete" class="form-label">ID dell'elemento da eliminare:</label>
                 <input type="text" class="form-control" id="idDelete" name="idDelete" required>
             </div>
             <button type="submit" class="btn btn-danger">Elimina elemento</button>
-        </form>
+        </form> -->
 
         <div id="response" class="mt-4"></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        // Gestione richiesta GET
-        document.getElementById('getDataBtn').addEventListener('click', async function() {
+        // Funzione per caricare i dati
+        function loadData(limit) {
+            axios.get(`http://localhost:3000/protocollocem?limit=${limit}`)
+                .then(response => {
+                    const data = response.data.data;
+                    const tableBody = document.getElementById('responseData');
+                    tableBody.innerHTML = ''; // Pulisci i dati precedenti
+
+                    tableBody.addEventListener('click', function(event) {
+                        const target = event.target;
+                        if (target.classList.contains('btn-view')) {
+                            // Se il bottone "VIEW" è stato cliccato
+                            const id = target.getAttribute('data-id');
+                        // Effettua una richiesta GET per ottenere i dettagli dell'elemento
+                        axios.get(`http://localhost:3000/protocollocem/${id}`)
+                            .then(response => {
+                                const item = response.data;
+                                // Visualizza i dettagli in un pop-up
+                                alert(JSON.stringify(item, null, 2));
+                            })
+                            .catch(error => {
+                                console.error('Errore durante la richiesta GET:', error);
+                            });
+                        } else if (target.classList.contains('btn-edit')) {
+                            // Se il bottone "EDIT" è stato cliccato
+                            const id = target.getAttribute('data-id');
+                            // Reindirizza alla pagina di modifica con l'ID
+                            window.location.href = `edit.html?id=${id}`;
+                        } else if (target.classList.contains('btn-delete')) {
+                            // Se il bottone "DELETE" è stato cliccato
+                            if (confirm("Sei sicuro di voler eliminare questo elemento?")) {
+                                const id = target.getAttribute('data-id');
+                                // Effettua una richiesta DELETE per eliminare l'elemento dal database
+                                axios.delete(`http://localhost:3000/protocollocem/${id}`)
+                                    .then(response => {
+                                        // Se l'eliminazione è riuscita, rimuovi la riga dalla tabella
+                                        target.closest('tr').remove();
+                                        alert(response.data.message);
+                                    })
+                                    .catch(error => {
+                                        console.error('Errore durante la richiesta DELETE:', error);
+                                    });
+                            }
+                        }
+                    });
+
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${item.idprot}</td>
+                            <td>${item.senso}</td>
+                            <td>${new Date(item.data).toLocaleDateString()}</td>
+                            <td>${item.protocollo}</td>
+                            <td>${item.autore}</td>
+                            <td>${item.mittente}</td>
+                            <td>${item.destinatario}</td>
+                            <td>
+                                <button class="btn btn-info btn-view" data-id="${item.idprot}">View</button>
+                                <button class="btn btn-warning btn-edit" data-id="${item.idprot}">Edit</button>
+                                <button class="btn btn-danger btn-delete" data-id="${item.idprot}">Delete</button>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Errore durante la richiesta GET:', error);
+                });
+        }
+
+        // Carica i primi dieci dati al caricamento della pagina
+        window.addEventListener('load', function() {
+            loadData(10); // Carica i primi dieci dati
+        });
+
+        // Aggiungi un listener per il click del bottone "Carica dati"
+        document.getElementById('getDataBtn').addEventListener('click', function() {
             const limit = document.getElementById('limitSelect').value;
-            try {
-                const response = await axios.get(`http://localhost:3000/protocollocem?limit=${limit}`);
-                const data = response.data.data;
-                const tableBody = document.getElementById('responseData');
-                tableBody.innerHTML = ''; // Clear previous data
-
-                data.forEach(item => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${item.idprot}</td>
-                        <td>${item.senso}</td>
-                        <td>${item.data}</td>
-                        <td>${item.protocollo}</td>
-                        <td>${item.autore}</td>
-                        <td>${item.mittente}</td>
-                        <td>${item.destinatario}</td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-            } catch (error) {
-                console.error('Errore durante la richiesta GET:', error);
-            }
-        });
-
-        // Gestione richiesta POST
-        document.getElementById('apiForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const senso = document.getElementById('senso').value;
-            const data = document.getElementById('data').value;
-            const protocollo = document.getElementById('protocollo').value;
-            const autore = document.getElementById('autore').value;
-            const mittente = document.getElementById('mittente').value;
-            const destinatario = document.getElementById('destinatario').value;
-
-            try {
-                const response = await axios.post('http://localhost:3000/protocollocem', {
-                    senso,
-                    data,
-                    protocollo,
-                    autore,
-                    mittente,
-                    destinatario
-                });
-                console.log('Dati inseriti correttamente:', response.data.message);
-            } catch (error) {
-                console.error('Errore durante la richiesta POST:', error);
-            }
-        });
-
-        // Gestione richiesta UPDATE
-        document.getElementById('updateForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const idUpdate = document.getElementById('idUpdate').value;
-            const senso = document.getElementById('senso').value;
-            const data = document.getElementById('data').value;
-            const protocollo = document.getElementById('protocollo').value;
-            const autore = document.getElementById('autore').value;
-            const mittente = document.getElementById('mittente').value;
-            const destinatario = document.getElementById('destinatario').value;
-
-            try {
-                const response = await axios.put(`http://localhost:3000/protocollocem/${idUpdate}`, {
-                    senso,
-                    data,
-                    protocollo,
-                    autore,
-                    mittente,
-                    destinatario
-                });
-                document.getElementById('response').innerText = JSON.stringify(response.data);
-            } catch (error) {
-                console.error('Errore durante la richiesta di update:', error);
-            }
+            loadData(limit); // Carica i dati con il nuovo limite selezionato
         });
 
         // Gestione richiesta DELETE
-        document.getElementById('deleteForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const idDelete = document.getElementById('idDelete').value;
-            try {
-                const response = await axios.delete(`http://localhost:3000/protocollocem/${idDelete}`);
-                document.getElementById('response').innerText = JSON.stringify(response.data);
-            } catch (error) {
-                console.error('Errore durante la richiesta di delete:', error);
-            }
-        });
+        // document.getElementById('deleteForm').addEventListener('submit', async function(event) {
+        //     event.preventDefault();
+        //     const idDelete = document.getElementById('idDelete').value;
+        //     try {
+        //         const response = await axios.delete(`http://localhost:3000/protocollocem/${idDelete}`);
+        //         document.getElementById('response').innerText = JSON.stringify(response.data);
+        //     } catch (error) {
+        //         console.error('Errore durante la richiesta di delete:', error);
+        //     }
+        // });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 

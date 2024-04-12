@@ -66,31 +66,6 @@ app.get('/protocollocem', (req, res) => {
     });
 });
 
-// GET single data from "protocollocem" table
-app.get('/protocollocem/:idprot', (req, res) => {
-  let gID = req.params.idprot;
-  let qr = `SELECT * FROM protocollocem WHERE idprot = ${gID}`;
-  db.query(qr, (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).send({
-        message: 'Error occurred while fetching data',
-        error: err
-      });
-    }
-    if (result.length > 0) {
-      res.send({
-        message: 'Single data from protocollocem',
-        data: result
-      });
-    } else {
-      res.send({
-        message: 'Data not found'
-      });
-    }
-  });
-});
-
 // Create data - POST
 app.post('/protocollocem', (req, res) => {
   const { senso, data, protocollo, autore, mittente, destinatario } = req.body;
