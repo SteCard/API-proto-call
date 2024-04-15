@@ -28,22 +28,22 @@ db.connect(err => {
 
 // GET data with optional limit
 app.get('/protocollocem', (req, res) => {
-    const limit = req.query.limit || 10; // Default limit is 10 if not provided
-    let qr = `SELECT * FROM protocollocem LIMIT ${limit}`;
-    db.query(qr, (err, result) => {
-        if (err) {
-            console.log(err, 'Errore durante la query GET');
-            res.status(500).send({
-                message: 'Errore durante il recupero dei dati',
-                error: err
-            });
-        } else {
-            res.send({
-                message: `Primi ${limit} dati`,
-                data: result
-            });
-        }
-    });
+  const limit = req.query.limit || 10; // Default limit is 10 if not provided
+  let qr = `SELECT * FROM protocollocem LIMIT ${limit}`;
+  db.query(qr, (err, result) => {
+      if (err) {
+          console.log(err, 'Errore durante la query GET');
+          res.status(500).send({
+              message: 'Errore durante il recupero dei dati',
+              error: err
+          });
+      } else {
+          res.send({
+              message: `Primi ${limit} dati`,
+              data: result
+          });
+      }
+  });
 });
 
 // GET data by ID
@@ -92,21 +92,37 @@ app.get('/senso', (req, res) => {
 app.post('/protocollocem', (req, res) => {
   const { senso, data, protocollo, autore, mittente, destinatario } = req.body;
 
-  // Insert data into the database
-  let qr = `INSERT INTO protocollocem (senso, data, protocollo, autore, mittente, destinatario) 
-            VALUES (?, ?, ?, ?, ?, ?)`;
-  db.query(qr, [senso, data, protocollo, autore, mittente, destinatario], (err, result) => {
+  // Check if protocollo already exists
+  let qrCheckProtocollo = `SELECT * FROM protocollocem WHERE protocollo = ?`;
+  db.query(qrCheckProtocollo, [protocollo], (err, result) => {
     if (err) {
-      console.log(err, 'Errore durante la query INSERT');
-      res.status(500).send({
-        message: 'Errore durante l\'inserimento dei dati',
+      console.log(err, 'Errore durante la query SELECT');
+      return res.status(500).send({
+        message: 'Errore durante la verifica del numero di protocollo',
         error: err
       });
-    } else {
+    }
+    if (result.length > 0) {
+      return res.status(400).send({
+        message: 'Numero di protocollo già esistente. Inserire un numero diverso.'
+      });
+    }
+    
+    // Insert data into the database
+    let qrInsert = `INSERT INTO protocollocem (senso, data, protocollo, autore, mittente, destinatario) 
+              VALUES (?, ?, ?, ?, ?, ?)`;
+    db.query(qrInsert, [senso, data, protocollo, autore, mittente, destinatario], (err, result) => {
+      if (err) {
+        console.log(err, 'Errore durante la query INSERT');
+        return res.status(500).send({
+          message: 'Errore durante l\'inserimento dei dati',
+          error: err
+        });
+      }
       res.send({
         message: 'Dati inseriti correttamente nella tabella protocollocem'
       });
-    }
+    });
   });
 });
 

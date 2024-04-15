@@ -47,7 +47,7 @@
         // Gestione richiesta POST
         document.getElementById('apiForm').addEventListener('submit', async function(event) {
             event.preventDefault();
-            const senso = document.getElementById('senso').value;
+            const senso = document.getElementById('sensoSelect').value;
             const data = document.getElementById('data').value;
             const protocollo = document.getElementById('protocollo').value;
             const autore = document.getElementById('autore').value;
@@ -66,7 +66,11 @@
                 console.log('Dati inseriti correttamente:', response.data.message);
                 window.location.href = 'index.html';
             } catch (error) {
-                console.error('Errore durante la richiesta POST:', error);
+                if (error.response && error.response.status === 400) {
+                    alert('Numero di protocollo già esistente. Inserire un numero diverso.');
+                } else {
+                    console.error('Errore durante la richiesta POST:', error);
+                }            
             }
         });
 

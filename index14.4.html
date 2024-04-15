@@ -74,6 +74,8 @@
                 </div>
             </div>
         </div>
+
+        <!-- <div id="response" class="mt-4"></div> -->
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -85,6 +87,31 @@
                     const data = response.data.data;
                     const tableBody = document.getElementById('responseData');
                     tableBody.innerHTML = ''; // Pulisci i dati precedenti
+
+                    tableBody.addEventListener('click', function(event) {
+                        const target = event.target;
+                        if (target.classList.contains('btn-edit')) {
+                            // Se il bottone "EDIT" è stato cliccato
+                            const id = target.getAttribute('data-id');
+                            // Reindirizza alla pagina di modifica con l'ID
+                            window.location.href = `edit.html?id=${id}`;
+                        } else if (target.classList.contains('btn-delete')) {
+                            // Se il bottone "DELETE" è stato cliccato
+                            if (confirm("Sei sicuro di voler eliminare questo elemento?")) {
+                                const id = target.getAttribute('data-id');
+                                // Effettua una richiesta DELETE per eliminare l'elemento dal database
+                                axios.delete(`http://localhost:3000/protocollocem/${id}`)
+                                    .then(response => {
+                                        // Se l'eliminazione è riuscita, rimuovi la riga dalla tabella
+                                        target.closest('tr').remove();
+                                        alert(response.data.message);
+                                    })
+                                    .catch(error => {
+                                        console.error('Errore durante la richiesta DELETE:', error);
+                                    });
+                            }
+                        }
+                    });
 
                     data.forEach(item => {
                         const row = document.createElement('tr');
@@ -148,32 +175,9 @@
                     .catch(error => {
                         console.error('Errore durante la richiesta GET:', error);
                     });
-            } else if (target.classList.contains('btn-edit')) {
-                const id = parseInt(target.getAttribute('data-id'));
-                // Reindirizza alla pagina di modifica con l'ID
-                window.location.href = `edit.html?id=${id}`;
             }
         });
 
-        // Logica per la conferma prima di eliminare un protocollo
-        document.getElementById('responseData').addEventListener('click', function(event) {
-            const target = event.target;
-            if (target.classList.contains('btn-delete')) {
-                if (confirm("Sei sicuro di voler eliminare questo elemento?")) {
-                    const id = target.getAttribute('data-id');
-                    // Effettua una richiesta DELETE per eliminare l'elemento dal database
-                    axios.delete(`http://localhost:3000/protocollocem/${id}`)
-                        .then(response => {
-                            // Se l'eliminazione è riuscita, rimuovi la riga dalla tabella
-                            target.closest('tr').remove();
-                            alert(response.data.message);
-                        })
-                        .catch(error => {
-                            console.error('Errore durante la richiesta DELETE:', error);
-                        });
-                }
-            }
-        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
