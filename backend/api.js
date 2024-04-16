@@ -166,6 +166,85 @@ app.delete('/protocollocem/:idprot', (req, res) => {
   });
 });
 
+//API form nidificato reg-prov-com
+
+// API to GET regioni
+app.get('/gi_regioni', (req, res) => {
+  let qr = `SELECT codice_regione AS codice, denominazione_regione AS denominazione FROM gi_regioni`;
+  db.query(qr, (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante la query GET per le regioni',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Regioni recuperate correttamente',
+      data: result
+    });
+  });
+});
+
+// API to GET province by regione
+app.get('/gi_province', (req, res) => {
+  const regioneCodice = req.query.regione;
+  let qr = `SELECT sigla_provincia AS codice, denominazione_provincia AS denominazione FROM gi_province WHERE codice_regione = ?`;
+  db.query(qr, [regioneCodice], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante la query GET per le province',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Province recuperate correttamente',
+      data: result
+    });
+  });
+});
+
+// API to GET comuni by provincia
+app.get('/gi_comuni', (req, res) => {
+  const provinciaSigla = req.query.provincia;
+  let qr = `SELECT codice_istat AS codice, denominazione_ita AS denominazione FROM gi_comuni WHERE sigla_provincia = ?`;
+  db.query(qr, [provinciaSigla], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante la query GET per i comuni',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Comuni recuperati correttamente',
+      data: result
+    });
+  });
+});
+
+// Create data for codicesitogestori - POST
+app.post('/codicesitogestori', (req, res) => {
+  const { numcodsito, nomesito, regione, provincia, comune } = req.body;
+
+  // Insert data into the database
+  let qrInsert = `INSERT INTO codicesitogestori (numcodsito, nomesito, regione, provincia, comune) 
+                  VALUES (?, ?, ?, ?, ?)`;
+  db.query(qrInsert, [numcodsito, nomesito, regione, provincia, comune], (err, result) => {
+    if (err) {
+      console.log(err, 'Errore durante la query INSERT');
+      return res.status(500).send({
+        message: 'Errore durante l\'inserimento dei dati',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Dati inseriti correttamente nella tabella codicesitogestori'
+    });
+  });
+});
+
 // CHECK SERVER
 app.listen(3000, () => {
   console.log('Server running...');
