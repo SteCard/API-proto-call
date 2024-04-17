@@ -225,22 +225,84 @@ app.get('/gi_comuni', (req, res) => {
 });
 
 // POST - Create data for codicesitogestori
+// app.post('/codicesitogestori', (req, res) => {
+//   const { numcodsito, nomesito, regione, provincia, comune } = req.body;
+
+//   let qrInsert = `INSERT INTO codicesitogestori (numcodsito, nomesito, regione, provincia, comune) 
+//                   VALUES (?, ?, ?, ?, ?)`;
+//   db.query(qrInsert, [numcodsito, nomesito, regione, provincia, comune], (err, result) => {
+//     if (err) {
+//       console.log(err, 'Errore durante la query INSERT');
+//       return res.status(500).send({
+//         message: 'Errore durante l\'inserimento dei dati',
+//         error: err
+//       });
+//     }
+//     res.send({
+//       message: 'Dati inseriti correttamente nella tabella codicesitogestori'
+//     });
+//   });
+// });
+
 app.post('/codicesitogestori', (req, res) => {
   const { numcodsito, nomesito, regione, provincia, comune } = req.body;
 
-  // Insert data into the database
-  let qrInsert = `INSERT INTO codicesitogestori (numcodsito, nomesito, regione, provincia, comune) 
-                  VALUES (?, ?, ?, ?, ?)`;
-  db.query(qrInsert, [numcodsito, nomesito, regione, provincia, comune], (err, result) => {
+  // Funzione per ottenere la denominazione della regione basata sul codice
+  const getRegionName = (regione, callback) => {
+    db.query('SELECT denominazione_regione FROM gi_regioni WHERE codice_regione = ?', [regione], (err, result) => {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, result[0].denominazione_regione);
+      }
+    });
+  };
+
+  // Funzione per ottenere la denominazione del comune basata sul codice
+  const getComuneName = (comune, callback) => {
+    db.query('SELECT denominazione_ita FROM gi_comuni WHERE codice_istat = ?', [comune], (err, result) => {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, result[0].denominazione_ita);
+      }
+    });
+  };
+
+  // Inserimento dei dati nella tabella codicesitogestori
+  getRegionName(regione, (err, regionName) => {
     if (err) {
-      console.log(err, 'Errore durante la query INSERT');
+      console.log(err, 'Errore durante la ricerca della denominazione della regione');
       return res.status(500).send({
-        message: 'Errore durante l\'inserimento dei dati',
+        message: 'Errore durante la ricerca della denominazione della regione',
         error: err
       });
     }
-    res.send({
-      message: 'Dati inseriti correttamente nella tabella codicesitogestori'
+
+    getComuneName(comune, (err, comuneName) => {
+      if (err) {
+        console.log(err, 'Errore durante la ricerca della denominazione del comune');
+        return res.status(500).send({
+          message: 'Errore durante la ricerca della denominazione del comune',
+          error: err
+        });
+      }
+
+      // Inserimento dei dati nella tabella codicesitogestori con le denominazioni al posto dei codici
+      let qrInsert = `INSERT INTO codicesitogestori (numcodsito, nomesito, regione, provincia, comune) 
+                      VALUES (?, ?, ?, ?, ?)`;
+      db.query(qrInsert, [numcodsito, nomesito, regionName, provincia, comuneName], (err, result) => {
+        if (err) {
+          console.log(err, 'Errore durante la query INSERT');
+          return res.status(500).send({
+            message: 'Errore durante l\'inserimento dei dati',
+            error: err
+          });
+        }
+        res.send({
+          message: 'Dati inseriti correttamente nella tabella codicesitogestori'
+        });
+      });
     });
   });
 });
