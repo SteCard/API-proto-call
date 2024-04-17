@@ -224,7 +224,7 @@ app.get('/gi_comuni', (req, res) => {
   });
 });
 
-// Create data for codicesitogestori - POST
+// POST - Create data for codicesitogestori
 app.post('/codicesitogestori', (req, res) => {
   const { numcodsito, nomesito, regione, provincia, comune } = req.body;
 

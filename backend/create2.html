@@ -54,10 +54,16 @@
             }
         }
     
-        // Funzione per popolare il dropdown delle regioni
+        // Funzione per popolare il dropdown delle REGIONI
         async function populateRegioniDropdown() {
             const selectElement = document.getElementById('regioneSelect');
-            selectElement.innerHTML = ''; // Pulisci il dropdown
+            selectElement.innerHTML = ''; // Clear dropdown
+            
+            // Aggiungi un'opzione vuota come prima opzione
+            const emptyOption = document.createElement('option');
+            emptyOption.text = 'Seleziona una regione';
+            emptyOption.value = '';
+            selectElement.appendChild(emptyOption);
     
             try {
                 const response = await axios.get('http://localhost:3000/gi_regioni');
@@ -79,10 +85,15 @@
             populateProvinceDropdown(regioneSelezionata); // Popola il dropdown delle province con le province corrispondenti
         });
     
-        // Funzione per popolare il dropdown delle province
+        // Funzione per popolare il dropdown delle PROVINCE
         async function populateProvinceDropdown(regioneSelezionata) {
             const selectElement = document.getElementById('provinciaSelect');
             selectElement.innerHTML = ''; // Pulisci il dropdown
+
+            // Aggiungi un'opzione vuota come prima opzione
+            const emptyOption = document.createElement('option');
+            emptyOption.value = '';
+            selectElement.appendChild(emptyOption);
     
             try {
                 const response = await axios.get(`http://localhost:3000/gi_province?regione=${regioneSelezionata}`);
@@ -101,10 +112,15 @@
         // Popola i dropdown delle regioni all'avvio della pagina
         populateRegioniDropdown();
     
-        // Funzione per popolare il dropdown dei comuni
+        // Funzione per popolare il dropdown dei COMUNI
         async function populateComuniDropdown(provinciaSelezionata) {
             const selectElement = document.getElementById('comuneSelect');
             selectElement.innerHTML = ''; // Pulisci il dropdown
+
+            // Aggiungi un'opzione vuota come prima opzione
+            const emptyOption = document.createElement('option');
+            emptyOption.value = '';
+            selectElement.appendChild(emptyOption);
     
             try {
                 const response = await axios.get(`http://localhost:3000/gi_comuni?provincia=${provinciaSelezionata}`);
@@ -120,13 +136,13 @@
             }
         }
     
-        // Ascolta il cambiamento nella selezione della provincia
+        // Funzione per gestire il cambiamento nella selezione della provincia
         document.getElementById('provinciaSelect').addEventListener('change', function() {
             const provinciaSelezionata = this.value; // Ottieni il valore della provincia selezionata
             populateComuniDropdown(provinciaSelezionata); // Popola il dropdown dei comuni con i comuni corrispondenti
         });
     
-        // Funzione per gestire la sottomissione del modulo
+        // Funzione per gestire l'invio del modulo
         document.getElementById('createForm').addEventListener('submit', async function(event) {
             event.preventDefault();
             const numcodsito = document.getElementById('numcodsito').value;
@@ -144,7 +160,7 @@
                     comune
                 });
                 console.log('Data inserted successfully:', response.data.message);
-                // Redirect to another page or do something else
+                window.location.href = 'index.html';
             } catch (error) {
                 console.error('Error while submitting form:', error);
             }
