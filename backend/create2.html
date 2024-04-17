@@ -53,12 +53,12 @@
                 console.error('Error fetching data:', error);
             }
         }
-
+    
         // Funzione per popolare il dropdown delle regioni
         async function populateRegioniDropdown() {
             const selectElement = document.getElementById('regioneSelect');
             selectElement.innerHTML = ''; // Pulisci il dropdown
-
+    
             try {
                 const response = await axios.get('http://localhost:3000/gi_regioni');
                 const regioni = response.data.data; // Ottieni l'array delle regioni
@@ -72,16 +72,18 @@
                 console.error('Errore durante la richiesta GET per le regioni:', error);
             }
         }
-
-        // Chiama la funzione per popolare il dropdown delle regioni all'avvio della pagina
-        populateRegioniDropdown();
-
-
+    
+        // Funzione per gestire il cambiamento della regione nel dropdown delle regioni
+        document.getElementById('regioneSelect').addEventListener('change', function() {
+            const regioneSelezionata = this.value; // Ottieni il valore della regione selezionata
+            populateProvinceDropdown(regioneSelezionata); // Popola il dropdown delle province con le province corrispondenti
+        });
+    
         // Funzione per popolare il dropdown delle province
         async function populateProvinceDropdown(regioneSelezionata) {
             const selectElement = document.getElementById('provinciaSelect');
             selectElement.innerHTML = ''; // Pulisci il dropdown
-
+    
             try {
                 const response = await axios.get(`http://localhost:3000/gi_province?regione=${regioneSelezionata}`);
                 const province = response.data.data; // Ottieni l'array delle province
@@ -95,18 +97,15 @@
                 console.error('Errore durante la richiesta GET per le province:', error);
             }
         }
-
-        // Funzione per gestire il cambiamento della regione nel dropdown delle regioni
-        document.getElementById('regioneSelect').addEventListener('change', function() {
-            const regioneSelezionata = this.value; // Ottieni il valore della regione selezionata
-            populateProvinceDropdown(regioneSelezionata); // Popola il dropdown delle province con le province corrispondenti
-        });
-
+    
+        // Popola i dropdown delle regioni all'avvio della pagina
+        populateRegioniDropdown();
+    
         // Funzione per popolare il dropdown dei comuni
         async function populateComuniDropdown(provinciaSelezionata) {
             const selectElement = document.getElementById('comuneSelect');
             selectElement.innerHTML = ''; // Pulisci il dropdown
-
+    
             try {
                 const response = await axios.get(`http://localhost:3000/gi_comuni?provincia=${provinciaSelezionata}`);
                 const comuni = response.data.data; // Ottieni l'array dei comuni
@@ -120,27 +119,14 @@
                 console.error('Errore durante la richiesta GET per i comuni:', error);
             }
         }
-
-        // Funzione per gestire il cambiamento della provincia nel dropdown delle province
+    
+        // Ascolta il cambiamento nella selezione della provincia
         document.getElementById('provinciaSelect').addEventListener('change', function() {
             const provinciaSelezionata = this.value; // Ottieni il valore della provincia selezionata
             populateComuniDropdown(provinciaSelezionata); // Popola il dropdown dei comuni con i comuni corrispondenti
         });
-
-        async function initDropdowns() {
-            await populateRegioniDropdown();
-            document.getElementById('regioneSelect').addEventListener('change', function(event) {
-                const regioneCodice = event.target.value;
-                populateProvinceDropdown(regioneCodice);
-            });
-            document.getElementById('provinciaSelect').addEventListener('change', function(event) {
-                const provinciaSigla = event.target.value;
-                populateComuniDropdown(provinciaSigla);
-            });
-        }
-
-        initDropdowns();
-
+    
+        // Funzione per gestire la sottomissione del modulo
         document.getElementById('createForm').addEventListener('submit', async function(event) {
             event.preventDefault();
             const numcodsito = document.getElementById('numcodsito').value;
@@ -148,7 +134,7 @@
             const regione = document.getElementById('regioneSelect').value;
             const provincia = document.getElementById('provinciaSelect').value;
             const comune = document.getElementById('comuneSelect').value;
-
+    
             try {
                 const response = await axios.post('http://localhost:3000/codicesitogestori', {
                     numcodsito,
