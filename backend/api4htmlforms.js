@@ -107,150 +107,9 @@ app.get('/senso', (req, res) => {
   });
 });
 
-// API GET dei valori "tematica"
-app.get('/tematiche', (req, res) => {
-  let qr = `SELECT * FROM tematiche`; 
-  db.query(qr, (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).send({
-        message: 'Errore durante la query GET per le tematiche',
-        error: err
-      });
-    }
-    res.send({
-      message: 'Tematiche recuperate correttamente',
-      data: result
-    });
-  });
-});
-
-// API GET dei valori "catcem"
-app.get('/catcem', (req, res) => {
-  let qr = `SELECT * FROM catcem`; 
-  db.query(qr, (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).send({
-        message: 'Errore durante la query GET per le categorie',
-        error: err
-      });
-    }
-    res.send({
-      message: 'Categorie recuperate correttamente',
-      data: result
-    });
-  });
-});
-
-// API GET dei valori "sottcatcem"
-app.get('/sottcatcem', (req, res) => {
-  let qr = `SELECT * FROM sottcatcem`; 
-  db.query(qr, (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).send({
-        message: 'Errore durante la query GET per le sottocategorie',
-        error: err
-      });
-    }
-    res.send({
-      message: 'Sottocategorie recuperate correttamente',
-      data: result
-    });
-  });
-});
-
-// API GET dei valori "classifcem"
-app.get('/classifcem', (req, res) => {
-  let qr = `SELECT * FROM classifcem`; 
-  db.query(qr, (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).send({
-        message: 'Errore durante la query GET per le azioni',
-        error: err
-      });
-    }
-    res.send({
-      message: 'Azioni recuperate correttamente',
-      data: result
-    });
-  });
-});
-
-// API GET dei valori "statoimpianto"
-app.get('/statoimpianto', (req, res) => {
-  let qr = `SELECT * FROM statoimpianto`; 
-  db.query(qr, (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).send({
-        message: 'Errore durante la query GET per gli stati impianto',
-        error: err
-      });
-    }
-    res.send({
-      message: 'Stati impianto recuperati correttamente',
-      data: result
-    });
-  });
-});
-
-// API GET dei valori "statoprocedura"
-app.get('/statoprocedura', (req, res) => {
-  let qr = `SELECT * FROM statoprocedura`; 
-  db.query(qr, (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).send({
-        message: 'Errore durante la query GET per gli stati procedura',
-        error: err
-      });
-    }
-    res.send({
-      message: 'Stati procedura recuperati correttamente',
-      data: result
-    });
-  });
-});
-
-
-// POST - Create data for protocollocem
+// Create data - POST
 app.post('/protocollocem', (req, res) => {
-  const {
-    senso,
-    data,
-    protocollo,
-    autore,
-    mittente,
-    destinatario,
-    oggetto,
-    numprotcoll,
-    riscontrogeos,
-    subassegnazione,
-    note,
-    tematica,
-    categoria,
-    sottocategoria,
-    azione,
-    azionedup,
-    protocollo_riferimento,
-    aie,
-    congiunta,
-    simulazione,
-    numcodsito,
-    statoimpianto,
-    statoprocedura,
-    scadenza,
-    scadenza2,
-    cdsdata,
-    cdsora,
-    notadigos,
-    dirigente,
-    funzionario,
-    commriscontro
-  } = req.body;
+  const { senso, data, protocollo, autore, mittente, destinatario } = req.body;
 
   // Check if protocollo already exists
   let qrCheckProtocollo = `SELECT * FROM protocollocem WHERE protocollo = ?`;
@@ -267,11 +126,11 @@ app.post('/protocollocem', (req, res) => {
         message: 'Numero di protocollo già esistente. Inserire un numero diverso.'
       });
     }
-
+    
     // Insert data into the database
-    let qrInsert = `INSERT INTO protocollocem (senso, data, protocollo, autore, mittente, destinatario, oggetto, numprotcoll, riscontrogeos, subassegnazione, note, tematica, categoria, sottocategoria, azione, azionedup, protocollo_riferimento, aie, congiunta, simulazione, numcodsito, statoimpianto, statoprocedura, scadenza, scadenza2, cdsdata, cdsora, notadigos, dirigente, funzionario, commriscontro) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-    db.query(qrInsert, [senso, data, protocollo, autore, mittente, destinatario, oggetto, numprotcoll, riscontrogeos, subassegnazione, note, tematica, categoria, sottocategoria, azione, azionedup, protocollo_riferimento, aie, congiunta, simulazione, numcodsito, statoimpianto, statoprocedura, scadenza, scadenza2, cdsdata, cdsora, notadigos, dirigente, funzionario, commriscontro], (err, result) => {
+    let qrInsert = `INSERT INTO protocollocem (senso, data, protocollo, autore, mittente, destinatario) 
+              VALUES (?, ?, ?, ?, ?, ?)`;
+    db.query(qrInsert, [senso, data, protocollo, autore, mittente, destinatario], (err, result) => {
       if (err) {
         console.log(err, 'Errore durante la query INSERT');
         return res.status(500).send({
@@ -286,47 +145,15 @@ app.post('/protocollocem', (req, res) => {
   });
 });
 
-// PUT - Update data for protocollocem
+// Update single data - PUT
 app.put('/protocollocem/:idprot', (req, res) => {
   const idprot = req.params.idprot;
-  const {
-    senso,
-    data,
-    protocollo,
-    autore,
-    mittente,
-    destinatario,
-    oggetto,
-    numprotcoll,
-    riscontrogeos,
-    subassegnazione,
-    note,
-    tematica,
-    categoria,
-    sottocategoria,
-    azione,
-    azionedup,
-    protocollo_riferimento,
-    aie,
-    congiunta,
-    simulazione,
-    numcodsito,
-    statoimpianto,
-    statoprocedura,
-    scadenza,
-    scadenza2,
-    cdsdata,
-    cdsora,
-    notadigos,
-    dirigente,
-    funzionario,
-    commriscontro
-  } = req.body;
+  const { senso, data, protocollo, autore, mittente, destinatario } = req.body;
 
   let qr = `UPDATE protocollocem 
-            SET senso=?, data=?, protocollo=?, autore=?, mittente=?, destinatario=?, oggetto=?, numprotcoll=?, riscontrogeos=?, subassegnazione=?, note=?, tematica=?, categoria=?, sottocategoria=?, azione=?, azionedup=?, protocollo_riferimento=?, aie=?, congiunta=?, simulazione=?, numcodsito=?, statoimpianto=?, statoprocedura=?, scadenza=?, scadenza2=?, cdsdata=?, cdsora=?, notadigos=?, dirigente=?, funzionario=?, commriscontro=?
+            SET senso=?, data=?, protocollo=?, autore=?, mittente=?, destinatario=?
             WHERE idprot=?`;
-  db.query(qr, [senso, data, protocollo, autore, mittente, destinatario, oggetto, numprotcoll, riscontrogeos, subassegnazione, note, tematica, categoria, sottocategoria, azione, azionedup, protocollo_riferimento, aie, congiunta, simulazione, numcodsito, statoimpianto, statoprocedura, scadenza, scadenza2, cdsdata, cdsora, notadigos, dirigente, funzionario, commriscontro, idprot], (err, result) => {
+  db.query(qr, [senso, data, protocollo, autore, mittente, destinatario, idprot], (err, result) => {
     if (err) {
       console.log(err);
       return res.status(500).send({

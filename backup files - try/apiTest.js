@@ -128,6 +128,133 @@ app.delete('/protocollocem/:idprot', (req, res) => {
   });
 });
 
+//Approccio più dinamico per gestire le richieste POST e PUT con molti campi da gestire. Funzione di utilità per costruire dinamicamente la query SQL in base ai dati ricevuti dalla richiesta.
+
+// Funzione per costruire la query INSERT o UPDATE in base ai dati ricevuti
+const buildQuery = (table, data, id = null) => {
+  let fields = '';
+  let placeholders = '';
+  let values = [];
+
+  // Costruisci i campi e i segnaposto per i valori
+  for (const key in data) {
+    fields += `${key}, `;
+    placeholders += '?, ';
+    values.push(data[key]);
+  }
+
+  // Rimuovi l'ultima virgola aggiunta in eccesso
+  fields = fields.slice(0, -2);
+  placeholders = placeholders.slice(0, -2);
+
+  // Costruisci la parte della query SQL
+  let query = '';
+  if (id) {
+    // Se esiste un ID, è una query di aggiornamento
+    query = `UPDATE ${table} SET ${fields.replace(/,/g, '=?,')} WHERE id=?`;
+    values.push(id);
+  } else {
+    // Altrimenti, è una query di inserimento
+    query = `INSERT INTO ${table} (${fields}) VALUES (${placeholders})`;
+  }
+
+  return { query, values };
+};
+
+// API generica per POST e PUT
+app.post('/:table', (req, res) => {
+  const table = req.params.table;
+  const data = req.body;
+  
+  // Costruisci la query e i valori dinamicamente
+  const { query, values } = buildQuery(table, data);
+
+  // Esegui la query nel database
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante l\'inserimento dei dati',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Dati inseriti correttamente nella tabella ' + table
+    });
+  });
+});
+
+app.put('/:table/:id', (req, res) => {
+  const table = req.params.table;
+  const id = req.params.id;
+  const data = req.body;
+
+  // Costruisci la query e i valori dinamicamente
+  const { query, values } = buildQuery(table, data, id);
+
+  // Esegui la query nel database
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante l\'aggiornamento dei dati',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Dati aggiornati correttamente nella tabella ' + table
+    });
+  });
+});
+
+// API per POST utilizzando payload
+app.post('/:table', (req, res) => {
+  const table = req.params.table;
+  const payload = req.body.payload;
+
+  // Costruisci la query e i valori dinamicamente
+  const { query, values } = buildQuery(table, payload);
+
+  // Esegui la query nel database
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante l\'inserimento dei dati',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Dati inseriti correttamente nella tabella ' + table
+    });
+  });
+});
+
+// API per PUT utilizzando payload
+app.put('/:table/:id', (req, res) => {
+  const table = req.params.table;
+  const id = req.params.id;
+  const payload = req.body.payload;
+
+  // Costruisci la query e i valori dinamicamente
+  const { query, values } = buildQuery(table, payload, id);
+
+  // Esegui la query nel database
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante l\'aggiornamento dei dati',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Dati aggiornati correttamente nella tabella ' + table
+    });
+  });
+});
+
+
 // CHECK SERVER
 app.listen(3000, () => {
   console.log('Server running...');
