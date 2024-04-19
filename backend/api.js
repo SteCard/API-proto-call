@@ -26,70 +26,46 @@ db.connect(err => {
   }
 });
 
-// // GET all data from "protocollocem" table
+// // GET all data from "protocollocem" table - 200OK
+app.get('/protocollocem', (req, res) => {
+  let qr = `SELECT * FROM protocollocem`;
+  db.query(qr, (err, result) => {
+    if (err) {
+      console.log(err, 'Errore durante la query GET');
+      res.status(500).send({
+        message: 'Errore durante il recupero dei dati',
+        error: err
+      });
+    } else {
+      res.send({
+        message: 'Tutti i dati dalla tabella protocollocem',
+        data: result
+      });
+    }
+  });
+});
+
+// GET data with optional limit - 200OK
 // app.get('/protocollocem', (req, res) => {
-//   let qr = `SELECT * FROM protocollocem`;
+//   const limit = req.query.limit || 10; // Default limit is 10 if not provided
+//   let qr = `SELECT * FROM protocollocem LIMIT ${limit}`;
 //   db.query(qr, (err, result) => {
-//     if (err) {
-//       console.log(err, 'Errore durante la query GET');
-//       res.status(500).send({
-//         message: 'Errore durante il recupero dei dati',
-//         error: err
-//       });
-//     } else {
-//       res.send({
-//         message: 'Tutti i dati dalla tabella protocollocem',
-//         data: result
-//       });
-//     }
+//       if (err) {
+//           console.log(err, 'Errore durante la query GET');
+//           res.status(500).send({
+//               message: 'Errore durante il recupero dei dati',
+//               error: err
+//           });
+//       } else {
+//           res.send({
+//               message: `Primi ${limit} dati`,
+//               data: result
+//           });
+//       }
 //   });
 // });
 
-// GET data with optional limit
-app.get('/protocollocem', (req, res) => {
-  const limit = req.query.limit || 10; // Default limit is 10 if not provided
-  let qr = `SELECT * FROM protocollocem LIMIT ${limit}`;
-  db.query(qr, (err, result) => {
-      if (err) {
-          console.log(err, 'Errore durante la query GET');
-          res.status(500).send({
-              message: 'Errore durante il recupero dei dati',
-              error: err
-          });
-      } else {
-          res.send({
-              message: `Primi ${limit} dati`,
-              data: result
-          });
-      }
-  });
-});
-
-// GET data by ID
-app.get('/protocollocem/:idprot', (req, res) => {
-  const idprot = req.params.idprot;
-  let qr = `SELECT * FROM protocollocem WHERE idprot = ?`;
-  db.query(qr, [idprot], (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).send({
-        message: 'Error occurred while fetching data by ID',
-        error: err
-      });
-    }
-    if (result.length === 0) {
-      return res.status(404).send({
-        message: 'Data not found for the given ID'
-      });
-    }
-    res.send({
-      message: 'Data found',
-      data: result[0] // Return the first row, assuming only one row matches the ID
-    });
-  });
-});
-
-// GET data for "senso" dropdown
+// GET data for "senso" dropdown (200OK)
 app.get('/senso', (req, res) => {
   let qr = `SELECT valore FROM senso`; // Seleziona solo la colonna "valore"
   db.query(qr, (err, result) => {
@@ -102,14 +78,14 @@ app.get('/senso', (req, res) => {
     }
     res.send({
       message: 'Dati "senso" recuperati correttamente',
-      data: result // Assicurati che la risposta sia nell'array di oggetti corretto
+      data: result
     });
   });
 });
 
-// API GET dei valori "tematica"
+// API GET dei valori "tematica" (200OK)
 app.get('/tematiche', (req, res) => {
-  let qr = `SELECT * FROM tematiche`; 
+  let qr = `SELECT tipotematica FROM tematiche`; 
   db.query(qr, (err, result) => {
     if (err) {
       console.log(err);
@@ -125,9 +101,9 @@ app.get('/tematiche', (req, res) => {
   });
 });
 
-// API GET dei valori "catcem"
+// API GET dei valori "catcem" (200OK)
 app.get('/catcem', (req, res) => {
-  let qr = `SELECT * FROM catcem`; 
+  let qr = `SELECT catcem FROM catcem`; 
   db.query(qr, (err, result) => {
     if (err) {
       console.log(err);
@@ -143,9 +119,9 @@ app.get('/catcem', (req, res) => {
   });
 });
 
-// API GET dei valori "sottcatcem"
+// API GET dei valori "sottcatcem" (200OK)
 app.get('/sottcatcem', (req, res) => {
-  let qr = `SELECT * FROM sottcatcem`; 
+  let qr = `SELECT valoretemrum FROM sottcatcem`; 
   db.query(qr, (err, result) => {
     if (err) {
       console.log(err);
@@ -160,10 +136,10 @@ app.get('/sottcatcem', (req, res) => {
     });
   });
 });
-
-// API GET dei valori "classifcem"
+ 
+// API GET dei valori "classifcem" (200OK)
 app.get('/classifcem', (req, res) => {
-  let qr = `SELECT * FROM classifcem`; 
+  let qr = `SELECT valoretemrum FROM classifcem`; 
   db.query(qr, (err, result) => {
     if (err) {
       console.log(err);
@@ -179,9 +155,9 @@ app.get('/classifcem', (req, res) => {
   });
 });
 
-// API GET dei valori "statoimpianto"
+// API GET dei valori "statoimpianto" (200OK)
 app.get('/statoimpianto', (req, res) => {
-  let qr = `SELECT * FROM statoimpianto`; 
+  let qr = `SELECT valore FROM statoimpianto`; 
   db.query(qr, (err, result) => {
     if (err) {
       console.log(err);
@@ -197,9 +173,9 @@ app.get('/statoimpianto', (req, res) => {
   });
 });
 
-// API GET dei valori "statoprocedura"
+// API GET dei valori "statoprocedura" (200OK)
 app.get('/statoprocedura', (req, res) => {
-  let qr = `SELECT * FROM statoprocedura`; 
+  let qr = `SELECT valore FROM statoprocedura`; 
   db.query(qr, (err, result) => {
     if (err) {
       console.log(err);
@@ -215,6 +191,23 @@ app.get('/statoprocedura', (req, res) => {
   });
 });
 
+// GET all values of the "protocollo" column (200OK)
+app.get('/protocollocem/protocolli', (req, res) => {
+  let qr = `SELECT protocollo FROM protocollocem`;
+  db.query(qr, (err, result) => {
+    if (err) {
+      console.log(err, 'Errore durante la query GET per i valori di "protocollo"');
+      return res.status(500).send({
+        message: 'Errore durante il recupero dei valori di "protocollo"',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Valori di "protocollo" recuperati correttamente',
+      data: result
+    });
+  });
+});
 
 // POST - Create data for protocollocem
 app.post('/protocollocem', (req, res) => {
@@ -235,7 +228,7 @@ app.post('/protocollocem', (req, res) => {
     sottocategoria,
     azione,
     azionedup,
-    protocollo_riferimento,
+    protriferime,
     aie,
     congiunta,
     simulazione,
@@ -269,9 +262,9 @@ app.post('/protocollocem', (req, res) => {
     }
 
     // Insert data into the database
-    let qrInsert = `INSERT INTO protocollocem (senso, data, protocollo, autore, mittente, destinatario, oggetto, numprotcoll, riscontrogeos, subassegnazione, note, tematica, categoria, sottocategoria, azione, azionedup, protocollo_riferimento, aie, congiunta, simulazione, numcodsito, statoimpianto, statoprocedura, scadenza, scadenza2, cdsdata, cdsora, notadigos, dirigente, funzionario, commriscontro) 
+    let qrInsert = `INSERT INTO protocollocem (senso, data, protocollo, autore, mittente, destinatario, oggetto, numprotcoll, riscontrogeos, subassegnazione, note, tematica, categoria, sottocategoria, azione, azionedup, protriferime, aie, congiunta, simulazione, numcodsito, statoimpianto, statoprocedura, scadenza, scadenza2, cdsdata, cdsora, notadigos, dirigente, funzionario, commriscontro) 
               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-    db.query(qrInsert, [senso, data, protocollo, autore, mittente, destinatario, oggetto, numprotcoll, riscontrogeos, subassegnazione, note, tematica, categoria, sottocategoria, azione, azionedup, protocollo_riferimento, aie, congiunta, simulazione, numcodsito, statoimpianto, statoprocedura, scadenza, scadenza2, cdsdata, cdsora, notadigos, dirigente, funzionario, commriscontro], (err, result) => {
+    db.query(qrInsert, [senso, data, protocollo, autore, mittente, destinatario, oggetto, numprotcoll, riscontrogeos, subassegnazione, note, tematica, categoria, sottocategoria, azione, azionedup, protriferime, aie, congiunta, simulazione, numcodsito, statoimpianto, statoprocedura, scadenza, scadenza2, cdsdata, cdsora, notadigos, dirigente, funzionario, commriscontro], (err, result) => {
       if (err) {
         console.log(err, 'Errore durante la query INSERT');
         return res.status(500).send({
@@ -306,7 +299,7 @@ app.put('/protocollocem/:idprot', (req, res) => {
     sottocategoria,
     azione,
     azionedup,
-    protocollo_riferimento,
+    protriferime,
     aie,
     congiunta,
     simulazione,
@@ -324,9 +317,9 @@ app.put('/protocollocem/:idprot', (req, res) => {
   } = req.body;
 
   let qr = `UPDATE protocollocem 
-            SET senso=?, data=?, protocollo=?, autore=?, mittente=?, destinatario=?, oggetto=?, numprotcoll=?, riscontrogeos=?, subassegnazione=?, note=?, tematica=?, categoria=?, sottocategoria=?, azione=?, azionedup=?, protocollo_riferimento=?, aie=?, congiunta=?, simulazione=?, numcodsito=?, statoimpianto=?, statoprocedura=?, scadenza=?, scadenza2=?, cdsdata=?, cdsora=?, notadigos=?, dirigente=?, funzionario=?, commriscontro=?
+            SET senso=?, data=?, protocollo=?, autore=?, mittente=?, destinatario=?, oggetto=?, numprotcoll=?, riscontrogeos=?, subassegnazione=?, note=?, tematica=?, categoria=?, sottocategoria=?, azione=?, azionedup=?, protriferime=?, aie=?, congiunta=?, simulazione=?, numcodsito=?, statoimpianto=?, statoprocedura=?, scadenza=?, scadenza2=?, cdsdata=?, cdsora=?, notadigos=?, dirigente=?, funzionario=?, commriscontro=?
             WHERE idprot=?`;
-  db.query(qr, [senso, data, protocollo, autore, mittente, destinatario, oggetto, numprotcoll, riscontrogeos, subassegnazione, note, tematica, categoria, sottocategoria, azione, azionedup, protocollo_riferimento, aie, congiunta, simulazione, numcodsito, statoimpianto, statoprocedura, scadenza, scadenza2, cdsdata, cdsora, notadigos, dirigente, funzionario, commriscontro, idprot], (err, result) => {
+  db.query(qr, [senso, data, protocollo, autore, mittente, destinatario, oggetto, numprotcoll, riscontrogeos, subassegnazione, note, tematica, categoria, sottocategoria, azione, azionedup, protriferime, aie, congiunta, simulazione, numcodsito, statoimpianto, statoprocedura, scadenza, scadenza2, cdsdata, cdsora, notadigos, dirigente, funzionario, commriscontro, idprot], (err, result) => {
     if (err) {
       console.log(err);
       return res.status(500).send({
