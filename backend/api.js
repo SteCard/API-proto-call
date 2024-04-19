@@ -407,7 +407,7 @@ app.put('/protocollocem', (req, res) => {
 // });
 
 // Delete single data
-app.delete('/protocollocem', (req, res) => {
+app.delete('/protocollocem/single', (req, res) => {
   const idprot = req.query.idprot; // Otteniamo l'ID del protocollo dalla query string
   let qr = `DELETE FROM protocollocem WHERE idprot = ?`;
   db.query(qr, [idprot], (err, result) => {
@@ -423,6 +423,50 @@ app.delete('/protocollocem', (req, res) => {
     });
   });
 });
+
+// DELETE - Delete multiple data entries for protocollocem
+app.delete('/protocollocem/multiple', (req, res) => {
+  const idProts = req.body; // Array of protocol IDs to delete
+
+  if (!idProts || idProts.length === 0) {
+    return res.status(400).send({
+      message: 'Nessun ID protocollo fornito nella richiesta'
+    });
+  }
+
+  let qr = `DELETE FROM protocollocem WHERE idprot IN (?)`;
+
+  db.query(qr, [idProts], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante l\'eliminazione dei dati',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Dati eliminati con successo'
+    });
+  });
+});
+
+// Delete single data
+// app.delete('/protocollocem', (req, res) => {
+//   const idprot = req.query.idprot; // Otteniamo l'ID del protocollo dalla query string
+//   let qr = `DELETE FROM protocollocem WHERE idprot = ?`;
+//   db.query(qr, [idprot], (err, result) => {
+//     if (err) {
+//       console.log(err);
+//       return res.status(500).send({
+//         message: 'Errore durante l\'eliminazione dei dati',
+//         error: err
+//       });
+//     }
+//     res.send({
+//       message: 'Data deleted'
+//     });
+//   });
+// });
 
 // Delete single data (200OK)
 // app.delete('/protocollocem/:idprot', (req, res) => {
