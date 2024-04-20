@@ -209,6 +209,7 @@ app.get('/operatori', (req, res) => {
   });
 });
 
+
 // GET all values of the "protocollo" column (200OK)
 app.get('/protocollocem/protocolli', (req, res) => {
   let qr = `SELECT protocollo FROM protocollocem`;
@@ -227,79 +228,195 @@ app.get('/protocollocem/protocolli', (req, res) => {
   });
 });
 
-// POST - Create data for protocollocem
-app.post('/protocollocem', (req, res) => {
-  const {
-    senso,
-    data,
-    protocollo,
-    autore,
-    mittente,
-    destinatario,
-    oggetto,
-    numprotcoll,
-    riscontrogeos,
-    subassegnazione,
-    note,
-    tematica,
-    categoria,
-    sottocategoria,
-    azione,
-    azionedup,
-    protriferime,
-    aie,
-    congiunta,
-    simulazione,
-    numcodsito,
-    statoimpianto,
-    statoprocedura,
-    scadenza,
-    scadenza2,
-    cdsdata,
-    cdsora,
-    notadigos,
-    dirigente,
-    funzionario,
-    commriscontro
-  } = req.body;
+// API GET dei valori "protriferime" (200OK)
+// use same as API above ^
 
-  // Check if protocollo already exists
-  let qrCheckProtocollo = `SELECT * FROM protocollocem WHERE protocollo = ?`;
-  db.query(qrCheckProtocollo, [protocollo], (err, result) => {
+// API POST - Insert data in DB - FORM
+app.post('/protocollocem', (req, res) => {
+  const columns = Object.keys(req.body).join(', ');
+  const values = Object.values(req.body).map(value => {
+    if (value === undefined || value === null) {
+      return 'NULL';
+    } else if (typeof value === 'string') {
+      return `'${value}'`;
+    } else if (typeof value === 'boolean') {
+      return value ? 1 : 0;
+    } else if (value instanceof Date) {
+      return `'${value.toISOString().slice(0, 19).replace('T', ' ')}'`;
+    } else {
+      return value;
+    }
+  }).join(', ');
+
+  const qrInsert = `INSERT INTO protocollocem (${columns}) VALUES (${values})`;
+
+  db.query(qrInsert, (err, result) => {
     if (err) {
-      console.log(err, 'Errore durante la query SELECT');
+      console.log(err, 'Errore durante la query INSERT');
       return res.status(500).send({
-        message: 'Errore durante la verifica del numero di protocollo',
+        message: 'Errore durante l\'inserimento dei dati',
         error: err
       });
     }
-    if (result.length > 0) {
-      return res.status(400).send({
-        message: 'Numero di protocollo già esistente. Inserire un numero diverso.'
-      });
-    }
-
-    // Insert data into the database
-    let qrInsert = `INSERT INTO protocollocem (senso, data, protocollo, autore, mittente, destinatario, oggetto, numprotcoll, riscontrogeos, subassegnazione, note, tematica, categoria, sottocategoria, azione, azionedup, protriferime, aie, congiunta, simulazione, numcodsito, statoimpianto, statoprocedura, scadenza, scadenza2, cdsdata, cdsora, notadigos, dirigente, funzionario, commriscontro) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-    db.query(qrInsert, [senso, data, protocollo, autore, mittente, destinatario, oggetto, numprotcoll, riscontrogeos, subassegnazione, note, tematica, categoria, sottocategoria, azione, azionedup, protriferime, aie, congiunta, simulazione, numcodsito, statoimpianto, statoprocedura, scadenza, scadenza2, cdsdata, cdsora, notadigos, dirigente, funzionario, commriscontro], (err, result) => {
-      if (err) {
-        console.log(err, 'Errore durante la query INSERT');
-        return res.status(500).send({
-          message: 'Errore durante l\'inserimento dei dati',
-          error: err
-        });
-      }
-      res.send({
-        message: 'Dati inseriti correttamente nella tabella protocollocem'
-      });
+    res.send({
+      message: 'Dati inseriti correttamente nella tabella protocollocem'
     });
   });
 });
 
+// POST - Create data for protocollocem
+// app.post('/protocollocem', (req, res) => {
+//   const {
+//     senso,
+//     data,
+//     protocollo,
+//     autore,
+//     mittente,
+//     destinatario,
+//     oggetto,
+//     protcollegato,
+//     numprotcoll,
+//     riscontrogeos,
+//     riscontrouff1,
+//     riscontrouff2,
+//     subassegnazione,
+//     note,
+//     tematica,
+//     categoria,
+//     sottocategoria,
+//     azione,
+//     azionedup,
+//     protriferime,
+//     aie,
+//     congiunta,
+//     simulazione,
+//     checksccem,
+//     numcodsito,
+//     statoimpianto,
+//     statoprocedura,
+//     scadenza,
+//     scadenza2,
+//     cdsdata,
+//     cdsora,
+//     notadigos,
+//     dirigente,
+//     funzionario,
+//     commriscontro
+//   } = req.body;
+
+//   // Inserimento dei dati nel database
+//   let qrInsert = `INSERT INTO protocollocem 
+//     (senso, data, protocollo, autore, mittente, destinatario, oggetto, protcollegato, numprotcoll, riscontrogeos, riscontrouff1, riscontrouff2, subassegnazione, note, tematica, categoria, sottocategoria, azione, azionedup, protriferime, aie, congiunta, simulazione, checksccem, numcodsito, statoimpianto, statoprocedura, scadenza, scadenza2, cdsdata, cdsora, notadigos, dirigente, funzionario, commriscontro) 
+//     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+//   db.query(qrInsert, [
+//     senso,
+//     data,
+//     protocollo,
+//     autore,
+//     mittente,
+//     destinatario,
+//     oggetto,
+//     protcollegato,
+//     numprotcoll,
+//     riscontrogeos,
+//     riscontrouff1,
+//     riscontrouff2,
+//     subassegnazione,
+//     note,
+//     tematica,
+//     categoria,
+//     sottocategoria,
+//     azione,
+//     azionedup,
+//     protriferime,
+//     aie,
+//     congiunta,
+//     simulazione,
+//     checksccem,
+//     numcodsito,
+//     statoimpianto,
+//     statoprocedura,
+//     scadenza,
+//     scadenza2,
+//     cdsdata,
+//     cdsora,
+//     notadigos,
+//     dirigente,
+//     funzionario,
+//     commriscontro
+//   ], (err, result) => {
+//     if (err) {
+//       console.log(err, 'Errore durante la query INSERT');
+//       return res.status(500).send({
+//         message: 'Errore durante l\'inserimento dei dati',
+//         error: err
+//       });
+//     }
+//     res.send({
+//       message: 'Dati inseriti correttamente nella tabella protocollocem'
+//     });
+//   });
+// });
+
+// PUT - Update data for protocollocem
+// app.put('/protocollocem', (req, res) => {
+//   const idprot = req.query.idprot; // Otteniamo l'ID del protocollo dalla query
+//   const {
+//     senso,
+//     data,
+//     protocollo,
+//     autore,
+//     mittente,
+//     destinatario,
+//     oggetto,
+//     numprotcoll,
+//     riscontrogeos,
+//     subassegnazione,
+//     note,
+//     tematica,
+//     categoria,
+//     sottocategoria,
+//     azione,
+//     azionedup,
+//     protriferime,
+//     aie,
+//     congiunta,
+//     simulazione,
+//     numcodsito,
+//     statoimpianto,
+//     statoprocedura,
+//     scadenza,
+//     scadenza2,
+//     cdsdata,
+//     cdsora,
+//     notadigos,
+//     dirigente,
+//     funzionario,
+//     commriscontro
+//   } = req.body;
+
+//   let qr = `UPDATE protocollocem 
+//             SET senso=?, data=?, protocollo=?, autore=?, mittente=?, destinatario=?, oggetto=?, numprotcoll=?, riscontrogeos=?, subassegnazione=?, note=?, tematica=?, categoria=?, sottocategoria=?, azione=?, azionedup=?, protriferime=?, aie=?, congiunta=?, simulazione=?, numcodsito=?, statoimpianto=?, statoprocedura=?, scadenza=?, scadenza2=?, cdsdata=?, cdsora=?, notadigos=?, dirigente=?, funzionario=?, commriscontro=?
+//             WHERE idprot=?`;
+//   db.query(qr, [senso, data, protocollo, autore, mittente, destinatario, oggetto, numprotcoll, riscontrogeos, subassegnazione, note, tematica, categoria, sottocategoria, azione, azionedup, protriferime, aie, congiunta, simulazione, numcodsito, statoimpianto, statoprocedura, scadenza, scadenza2, cdsdata, cdsora, notadigos, dirigente, funzionario, commriscontro, idprot], (err, result) => {
+//     if (err) {
+//       console.log(err);
+//       return res.status(500).send({
+//         message: 'Errore durante l\'aggiornamento dei dati',
+//         error: err
+//       });
+//     }
+//     res.send({
+//       message: 'Data updated'
+//     });
+//   });
+// });
+
+
 // PUT - Update data for protocollocem
 app.put('/protocollocem', (req, res) => {
-  const idprot = req.query.idprot; // Otteniamo l'ID del protocollo dalla query string
+  const idprot = req.query.idprot; // Otteniamo l'ID del protocollo dalla query params
   const {
     senso,
     data,
@@ -350,61 +467,6 @@ app.put('/protocollocem', (req, res) => {
     });
   });
 });
-
-
-// PUT - Update data for protocollocem (200OK)
-// app.put('/protocollocem/:idprot', (req, res) => {
-//   const idprot = req.params.idprot;
-//   const {
-//     senso,
-//     data,
-//     protocollo,
-//     autore,
-//     mittente,
-//     destinatario,
-//     oggetto,
-//     numprotcoll,
-//     riscontrogeos,
-//     subassegnazione,
-//     note,
-//     tematica,
-//     categoria,
-//     sottocategoria,
-//     azione,
-//     azionedup,
-//     protriferime,
-//     aie,
-//     congiunta,
-//     simulazione,
-//     numcodsito,
-//     statoimpianto,
-//     statoprocedura,
-//     scadenza,
-//     scadenza2,
-//     cdsdata,
-//     cdsora,
-//     notadigos,
-//     dirigente,
-//     funzionario,
-//     commriscontro
-//   } = req.body;
-
-//   let qr = `UPDATE protocollocem 
-//             SET senso=?, data=?, protocollo=?, autore=?, mittente=?, destinatario=?, oggetto=?, numprotcoll=?, riscontrogeos=?, subassegnazione=?, note=?, tematica=?, categoria=?, sottocategoria=?, azione=?, azionedup=?, protriferime=?, aie=?, congiunta=?, simulazione=?, numcodsito=?, statoimpianto=?, statoprocedura=?, scadenza=?, scadenza2=?, cdsdata=?, cdsora=?, notadigos=?, dirigente=?, funzionario=?, commriscontro=?
-//             WHERE idprot=?`;
-//   db.query(qr, [senso, data, protocollo, autore, mittente, destinatario, oggetto, numprotcoll, riscontrogeos, subassegnazione, note, tematica, categoria, sottocategoria, azione, azionedup, protriferime, aie, congiunta, simulazione, numcodsito, statoimpianto, statoprocedura, scadenza, scadenza2, cdsdata, cdsora, notadigos, dirigente, funzionario, commriscontro, idprot], (err, result) => {
-//     if (err) {
-//       console.log(err);
-//       return res.status(500).send({
-//         message: 'Error occurred while updating data',
-//         error: err
-//       });
-//     }
-//     res.send({
-//       message: 'Data updated'
-//     });
-//   });
-// });
 
 // Delete single data
 app.delete('/protocollocem/single', (req, res) => {
