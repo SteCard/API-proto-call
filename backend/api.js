@@ -26,7 +26,7 @@ db.connect(err => {
   }
 });
 
-// GET all data from "protocollocem" table - 200OK
+// API GET all data from "protocollocem" table - 200OK
 app.get('/protocollocem', (req, res) => {
   let qr = `SELECT * FROM protocollocem`;
   db.query(qr, (err, result) => {
@@ -45,27 +45,43 @@ app.get('/protocollocem', (req, res) => {
   });
 });
 
-// GET data with optional limit - 200OK
-// app.get('/protocollocem', (req, res) => {
-//   const limit = req.query.limit || 10; // Default limit is 10 if not provided
-//   let qr = `SELECT * FROM protocollocem LIMIT ${limit}`;
-//   db.query(qr, (err, result) => {
-//       if (err) {
-//           console.log(err, 'Errore durante la query GET');
-//           res.status(500).send({
-//               message: 'Errore durante il recupero dei dati',
-//               error: err
-//           });
-//       } else {
-//           res.send({
-//               message: `Primi ${limit} dati`,
-//               data: result
-//           });
-//       }
-//   });
-// });
+// GET all values of the "protocollo" column (200OK)
+app.get('/protocollocem/protocolli', (req, res) => {
+  let qr = `SELECT protocollo FROM protocollocem`;
+  db.query(qr, (err, result) => {
+    if (err) {
+      console.log(err, 'Errore durante la query GET per i valori di "protocollo"');
+      return res.status(500).send({
+        message: 'Errore durante il recupero dei valori di "protocollo"',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Valori di "protocollo" recuperati correttamente',
+      data: result
+    });
+  });
+});
 
-// GET data for "senso" dropdown (200OK)
+// API GET dei valori "subassegnazione" (200OK)
+app.get('/operatori', (req, res) => {
+  let qr = `SELECT nomeoperatore FROM operatori`; 
+  db.query(qr, (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante la query GET per gli operatori',
+        error: err
+      });
+    }
+    res.send({
+      message: 'operatori recuperati correttamente',
+      data: result
+    });
+  });
+});
+
+// API GET data for "senso" dropdown (200OK)
 app.get('/senso', (req, res) => {
   let qr = `SELECT valore FROM senso`; // Seleziona solo la colonna "valore"
   db.query(qr, (err, result) => {
@@ -82,6 +98,7 @@ app.get('/senso', (req, res) => {
     });
   });
 });
+
 
 // API GET dei valori "tematica" (200OK)
 app.get('/tematiche', (req, res) => {
@@ -155,6 +172,24 @@ app.get('/classifcem', (req, res) => {
   });
 });
 
+// API GET dei valori "codicesitogestori" (200OK)
+app.get('/codicesitogestori', (req, res) => {
+  let qr = `SELECT numcodsito  FROM codicesitogestori`; 
+  db.query(qr, (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante la query GET per i Numeri codice sito',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Numeri Codice Sito recuperato correttamente',
+      data: result
+    });
+  });
+});
+
 // API GET dei valori "statoimpianto" (200OK)
 app.get('/statoimpianto', (req, res) => {
   let qr = `SELECT valore FROM statoimpianto`; 
@@ -191,46 +226,6 @@ app.get('/statoprocedura', (req, res) => {
   });
 });
 
-// API GET dei valori "subassegnazione" (200OK)
-app.get('/operatori', (req, res) => {
-  let qr = `SELECT nomeoperatore FROM operatori`; 
-  db.query(qr, (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).send({
-        message: 'Errore durante la query GET per gli operatori',
-        error: err
-      });
-    }
-    res.send({
-      message: 'operatori recuperati correttamente',
-      data: result
-    });
-  });
-});
-
-
-// GET all values of the "protocollo" column (200OK)
-app.get('/protocollocem/protocolli', (req, res) => {
-  let qr = `SELECT protocollo FROM protocollocem`;
-  db.query(qr, (err, result) => {
-    if (err) {
-      console.log(err, 'Errore durante la query GET per i valori di "protocollo"');
-      return res.status(500).send({
-        message: 'Errore durante il recupero dei valori di "protocollo"',
-        error: err
-      });
-    }
-    res.send({
-      message: 'Valori di "protocollo" recuperati correttamente',
-      data: result
-    });
-  });
-});
-
-// API GET dei valori "protriferime" (200OK)
-// use same as API above ^
-
 // API POST - Insert data in DB - FORM
 app.post('/protocollocem', (req, res) => {
   const columns = Object.keys(req.body).join(', ');
@@ -263,156 +258,6 @@ app.post('/protocollocem', (req, res) => {
     });
   });
 });
-
-// POST - Create data for protocollocem
-// app.post('/protocollocem', (req, res) => {
-//   const {
-//     senso,
-//     data,
-//     protocollo,
-//     autore,
-//     mittente,
-//     destinatario,
-//     oggetto,
-//     protcollegato,
-//     numprotcoll,
-//     riscontrogeos,
-//     riscontrouff1,
-//     riscontrouff2,
-//     subassegnazione,
-//     note,
-//     tematica,
-//     categoria,
-//     sottocategoria,
-//     azione,
-//     azionedup,
-//     protriferime,
-//     aie,
-//     congiunta,
-//     simulazione,
-//     checksccem,
-//     numcodsito,
-//     statoimpianto,
-//     statoprocedura,
-//     scadenza,
-//     scadenza2,
-//     cdsdata,
-//     cdsora,
-//     notadigos,
-//     dirigente,
-//     funzionario,
-//     commriscontro
-//   } = req.body;
-
-//   // Inserimento dei dati nel database
-//   let qrInsert = `INSERT INTO protocollocem 
-//     (senso, data, protocollo, autore, mittente, destinatario, oggetto, protcollegato, numprotcoll, riscontrogeos, riscontrouff1, riscontrouff2, subassegnazione, note, tematica, categoria, sottocategoria, azione, azionedup, protriferime, aie, congiunta, simulazione, checksccem, numcodsito, statoimpianto, statoprocedura, scadenza, scadenza2, cdsdata, cdsora, notadigos, dirigente, funzionario, commriscontro) 
-//     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
-//   db.query(qrInsert, [
-//     senso,
-//     data,
-//     protocollo,
-//     autore,
-//     mittente,
-//     destinatario,
-//     oggetto,
-//     protcollegato,
-//     numprotcoll,
-//     riscontrogeos,
-//     riscontrouff1,
-//     riscontrouff2,
-//     subassegnazione,
-//     note,
-//     tematica,
-//     categoria,
-//     sottocategoria,
-//     azione,
-//     azionedup,
-//     protriferime,
-//     aie,
-//     congiunta,
-//     simulazione,
-//     checksccem,
-//     numcodsito,
-//     statoimpianto,
-//     statoprocedura,
-//     scadenza,
-//     scadenza2,
-//     cdsdata,
-//     cdsora,
-//     notadigos,
-//     dirigente,
-//     funzionario,
-//     commriscontro
-//   ], (err, result) => {
-//     if (err) {
-//       console.log(err, 'Errore durante la query INSERT');
-//       return res.status(500).send({
-//         message: 'Errore durante l\'inserimento dei dati',
-//         error: err
-//       });
-//     }
-//     res.send({
-//       message: 'Dati inseriti correttamente nella tabella protocollocem'
-//     });
-//   });
-// });
-
-// PUT - Update data for protocollocem
-// app.put('/protocollocem', (req, res) => {
-//   const idprot = req.query.idprot; // Otteniamo l'ID del protocollo dalla query
-//   const {
-//     senso,
-//     data,
-//     protocollo,
-//     autore,
-//     mittente,
-//     destinatario,
-//     oggetto,
-//     numprotcoll,
-//     riscontrogeos,
-//     subassegnazione,
-//     note,
-//     tematica,
-//     categoria,
-//     sottocategoria,
-//     azione,
-//     azionedup,
-//     protriferime,
-//     aie,
-//     congiunta,
-//     simulazione,
-//     numcodsito,
-//     statoimpianto,
-//     statoprocedura,
-//     scadenza,
-//     scadenza2,
-//     cdsdata,
-//     cdsora,
-//     notadigos,
-//     dirigente,
-//     funzionario,
-//     commriscontro
-//   } = req.body;
-
-//   let qr = `UPDATE protocollocem 
-//             SET senso=?, data=?, protocollo=?, autore=?, mittente=?, destinatario=?, oggetto=?, numprotcoll=?, riscontrogeos=?, subassegnazione=?, note=?, tematica=?, categoria=?, sottocategoria=?, azione=?, azionedup=?, protriferime=?, aie=?, congiunta=?, simulazione=?, numcodsito=?, statoimpianto=?, statoprocedura=?, scadenza=?, scadenza2=?, cdsdata=?, cdsora=?, notadigos=?, dirigente=?, funzionario=?, commriscontro=?
-//             WHERE idprot=?`;
-//   db.query(qr, [senso, data, protocollo, autore, mittente, destinatario, oggetto, numprotcoll, riscontrogeos, subassegnazione, note, tematica, categoria, sottocategoria, azione, azionedup, protriferime, aie, congiunta, simulazione, numcodsito, statoimpianto, statoprocedura, scadenza, scadenza2, cdsdata, cdsora, notadigos, dirigente, funzionario, commriscontro, idprot], (err, result) => {
-//     if (err) {
-//       console.log(err);
-//       return res.status(500).send({
-//         message: 'Errore durante l\'aggiornamento dei dati',
-//         error: err
-//       });
-//     }
-//     res.send({
-//       message: 'Data updated'
-//     });
-//   });
-// });
-
 
 // PUT - Update data for protocollocem
 app.put('/protocollocem', (req, res) => {
@@ -468,7 +313,7 @@ app.put('/protocollocem', (req, res) => {
   });
 });
 
-// Delete single data
+// API DELETE single data
 app.delete('/protocollocem/single', (req, res) => {
   const idprot = req.query.idprot; // Otteniamo l'ID del protocollo dalla query string
   let qr = `DELETE FROM protocollocem WHERE idprot = ?`;
@@ -486,7 +331,7 @@ app.delete('/protocollocem/single', (req, res) => {
   });
 });
 
-// DELETE - Delete multiple data entries for protocollocem
+// API DELETE - Delete multiple data
 app.delete('/protocollocem/multiple', (req, res) => {
   const idProts = req.body; // Array of protocol IDs to delete
 
@@ -512,42 +357,7 @@ app.delete('/protocollocem/multiple', (req, res) => {
   });
 });
 
-// Delete single data
-// app.delete('/protocollocem', (req, res) => {
-//   const idprot = req.query.idprot; // Otteniamo l'ID del protocollo dalla query string
-//   let qr = `DELETE FROM protocollocem WHERE idprot = ?`;
-//   db.query(qr, [idprot], (err, result) => {
-//     if (err) {
-//       console.log(err);
-//       return res.status(500).send({
-//         message: 'Errore durante l\'eliminazione dei dati',
-//         error: err
-//       });
-//     }
-//     res.send({
-//       message: 'Data deleted'
-//     });
-//   });
-// });
-
-// Delete single data (200OK)
-// app.delete('/protocollocem/:idprot', (req, res) => {
-//   const idprot = req.params.idprot;
-//   let qr = `DELETE FROM protocollocem WHERE idprot = ?`;
-//   db.query(qr, [idprot], (err, result) => {
-//     if (err) {
-//       console.log(err);
-//       return res.status(500).send({
-//         message: 'Error occurred while deleting data',
-//         error: err
-//       });
-//     }
-//     res.send({
-//       message: 'Data deleted'
-//     });
-//   });
-// });
-
+//////////////////
 //API form nidificato reg-prov-com
 
 // API to GET regioni
@@ -607,25 +417,6 @@ app.get('/gi_comuni', (req, res) => {
 });
 
 // POST - Create data for codicesitogestori
-// app.post('/codicesitogestori', (req, res) => {
-//   const { numcodsito, nomesito, regione, provincia, comune } = req.body;
-
-//   let qrInsert = `INSERT INTO codicesitogestori (numcodsito, nomesito, regione, provincia, comune) 
-//                   VALUES (?, ?, ?, ?, ?)`;
-//   db.query(qrInsert, [numcodsito, nomesito, regione, provincia, comune], (err, result) => {
-//     if (err) {
-//       console.log(err, 'Errore durante la query INSERT');
-//       return res.status(500).send({
-//         message: 'Errore durante l\'inserimento dei dati',
-//         error: err
-//       });
-//     }
-//     res.send({
-//       message: 'Dati inseriti correttamente nella tabella codicesitogestori'
-//     });
-//   });
-// });
-
 app.post('/codicesitogestori', (req, res) => {
   const { numcodsito, nomesito, regione, provincia, comune } = req.body;
 
