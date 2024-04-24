@@ -26,6 +26,8 @@ db.connect(err => {
   }
 });
 
+////////////////////////////// PROTOCOLLO CEM //////////////////////////////////////////
+
 // API GET all data from "protocollocem" table - 200OK
 app.get('/protocollocem', (req, res) => {
   let qr = `SELECT * FROM protocollocem`;
@@ -259,7 +261,7 @@ app.post('/protocollocem', (req, res) => {
   });
 });
 
-// PUT - Update data for protocollocem
+// API PUT - Update data for protocollocem
 app.put('/protocollocem', (req, res) => {
   const idprot = req.query.idprot; // Otteniamo l'ID del protocollo dalla query params
   const {
@@ -308,7 +310,7 @@ app.put('/protocollocem', (req, res) => {
       });
     }
     res.send({
-      message: 'Data updated'
+      message: 'Dati aggiornati correttamente'
     });
   });
 });
@@ -357,11 +359,158 @@ app.delete('/protocollocem/multiple', (req, res) => {
   });
 });
 
-//////////////////
-//API form nidificato reg-prov-com
 
+////////////////////////////// PROTOCOLLO GEOS //////////////////////////////////////////
+
+// API GET all data from "protocollocem" table - 200OK
+app.get('/protocollogeos', (req, res) => {
+  let qr = `SELECT * FROM protocollogeos`;
+  db.query(qr, (err, result) => {
+    if (err) {
+      console.log(err, 'Errore durante la query GET');
+      res.status(500).send({
+        message: 'Errore durante il recupero dei dati',
+        error: err
+      });
+    } else {
+      res.send({
+        message: 'Tutti i dati dalla tabella protocollogeos',
+        data: result
+      });
+    }
+  });
+});
+
+////////////////////////////// CODICE SITO GESTORI //////////////////////////////////////////
+
+// API GET all data from "codicesitogestori" table - 200OK
+app.get('/codicesitogestoriAll', (req, res) => {
+  let qr = `SELECT * FROM codicesitogestori`;
+  db.query(qr, (err, result) => {
+    if (err) {
+      console.log(err, 'Errore durante la query GET');
+      res.status(500).send({
+        message: 'Errore durante il recupero dei dati',
+        error: err
+      });
+    } else {
+      res.send({
+        message: 'Tutti i dati dalla tabella codicesitogestori',
+        data: result
+      });
+    }
+  });
+});
+
+// API POST - Insert data in codicesitogestori
+app.post('/codicesitogestoriAll', (req, res) => {
+  const {
+    numcodsito,
+    numcodsitoold,
+    nomesito,
+    gestore,
+    tipoimpianto,
+    regione,
+    provincia,
+    comune,
+    indirizzo,
+    numlocosscem,
+    locosscem,
+    coordinatelong,
+    coordinatelat,
+    protocollocheck,
+    protcoll,
+    linkcondivisia,
+    dataprot,
+    statoimpianto
+  } = req.body;
+
+  // Verifica se i valori richiesti sono stati forniti nel corpo della richiesta
+  if (!numcodsito || !numcodsitoold || !nomesito || !gestore) {
+    return res.status(400).send({
+      message: 'I campi numcodsito, numcodsitoold, nomesito e gestore sono obbligatori'
+    });
+  }
+
+  const qrInsert = `INSERT INTO codicesitogestori 
+                    (numcodsito, numcodsitoold, nomesito, gestore, tipoimpianto, regione, provincia, comune, indirizzo, numlocosscem, locosscem, coordinatelong, coordinatelat, protocollocheck, protcoll, linkcondivisia, dataprot, statoimpianto) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  db.query(qrInsert, [numcodsito, numcodsitoold, nomesito, gestore, tipoimpianto, regione, provincia, comune, indirizzo, numlocosscem, locosscem, coordinatelong, coordinatelat, protocollocheck, protcoll, linkcondivisia, dataprot, statoimpianto], (err, result) => {
+    if (err) {
+      console.log(err, 'Errore durante la query INSERT');
+      return res.status(500).send({
+        message: 'Errore durante l\'inserimento dei dati',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Dati inseriti correttamente nella tabella codicesitogestori'
+    });
+  });
+});
+
+// API PUT - Update data for codicesitogestori
+app.put('/codicesitogestori', (req, res) => {
+  const numcodsito = req.query.numcodsito; // Otteniamo il valore di numcodsito dalla query params
+  const {
+    numcodsitoold,
+    nomesito,
+    gestore,
+    tipoimpianto,
+    regione,
+    provincia,
+    comune,
+    indirizzo,
+    numlocosscem,
+    locosscem,
+    coordinatelong,
+    coordinatelat,
+    protocollocheck,
+    protcoll,
+    linkcondivisia,
+    dataprot,
+    statoimpianto
+  } = req.body;
+
+  let qr = `UPDATE codicesitogestori 
+            SET numcodsitoold=?, nomesito=?, gestore=?, tipoimpianto=?, regione=?, provincia=?, comune=?, indirizzo=?, numlocosscem=?, locosscem=?, coordinatelong=?, coordinatelat=?, protocollocheck=?, protcoll=?, linkcondivisia=?, dataprot=?, statoimpianto=?
+            WHERE numcodsito=?`;
+  db.query(qr, [numcodsitoold, nomesito, gestore, tipoimpianto, regione, provincia, comune, indirizzo, numlocosscem, locosscem, coordinatelong, coordinatelat, protocollocheck, protcoll, linkcondivisia, dataprot, statoimpianto, numcodsito], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante l\'aggiornamento dei dati',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Dati aggiornati correttamente'
+    });
+  });
+});
+
+// API GET dei valori "gestori" (200OK)
+app.get('/codicesitogestori/gestore', (req, res) => {
+  let qr = `SELECT nomegestore FROM gestori`; 
+  db.query(qr, (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante la query GET per i gestori',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Gestori recuperati correttamente',
+      data: result
+    });
+  });
+});
+
+//// API form nidificato reg-prov-com ////
 // API to GET regioni
-app.get('/gi_regioni', (req, res) => {
+app.get('/codicesitogestori/regione', (req, res) => {
   let qr = `SELECT codice_regione AS codice, denominazione_regione AS denominazione FROM gi_regioni`;
   db.query(qr, (err, result) => {
     if (err) {
@@ -379,7 +528,7 @@ app.get('/gi_regioni', (req, res) => {
 });
 
 // API to GET province by regione
-app.get('/gi_province', (req, res) => {
+app.get('/codicesitogestori/provincia', (req, res) => {
   const regioneCodice = req.query.regione;
   let qr = `SELECT sigla_provincia AS codice, denominazione_provincia AS denominazione FROM gi_province WHERE codice_regione = ?`;
   db.query(qr, [regioneCodice], (err, result) => {
@@ -398,7 +547,7 @@ app.get('/gi_province', (req, res) => {
 });
 
 // API to GET comuni by provincia
-app.get('/gi_comuni', (req, res) => {
+app.get('/codicesitogestori/comune', (req, res) => {
   const provinciaSigla = req.query.provincia;
   let qr = `SELECT codice_istat AS codice, denominazione_ita AS denominazione FROM gi_comuni WHERE sigla_provincia = ?`;
   db.query(qr, [provinciaSigla], (err, result) => {
@@ -415,67 +564,66 @@ app.get('/gi_comuni', (req, res) => {
     });
   });
 });
+//// END API form nidificato reg-prov-com ////
 
-// POST - Create data for codicesitogestori
-app.post('/codicesitogestori', (req, res) => {
-  const { numcodsito, nomesito, regione, provincia, comune } = req.body;
-
-  // Funzione per ottenere la denominazione della regione basata sul codice
-  const getRegionName = (regione, callback) => {
-    db.query('SELECT denominazione_regione FROM gi_regioni WHERE codice_regione = ?', [regione], (err, result) => {
-      if (err) {
-        callback(err);
-      } else {
-        callback(null, result[0].denominazione_regione);
-      }
-    });
-  };
-
-  // Funzione per ottenere la denominazione del comune basata sul codice
-  const getComuneName = (comune, callback) => {
-    db.query('SELECT denominazione_ita FROM gi_comuni WHERE codice_istat = ?', [comune], (err, result) => {
-      if (err) {
-        callback(err);
-      } else {
-        callback(null, result[0].denominazione_ita);
-      }
-    });
-  };
-
-  // Inserimento dei dati nella tabella codicesitogestori
-  getRegionName(regione, (err, regionName) => {
+// GET all values of the "protocollo" column (200OK)
+app.get('/protocollocem/protocolli', (req, res) => {
+  let qr = `SELECT protocollo FROM protocollocem`;
+  db.query(qr, (err, result) => {
     if (err) {
-      console.log(err, 'Errore durante la ricerca della denominazione della regione');
+      console.log(err, 'Errore durante la query GET per i valori di "protocollo"');
       return res.status(500).send({
-        message: 'Errore durante la ricerca della denominazione della regione',
+        message: 'Errore durante il recupero dei valori di "protocollo"',
         error: err
       });
     }
+    res.send({
+      message: 'Valori di "protocollo" recuperati correttamente',
+      data: result
+    });
+  });
+});
 
-    getComuneName(comune, (err, comuneName) => {
-      if (err) {
-        console.log(err, 'Errore durante la ricerca della denominazione del comune');
-        return res.status(500).send({
-          message: 'Errore durante la ricerca della denominazione del comune',
-          error: err
-        });
-      }
-
-      // Inserimento dei dati nella tabella codicesitogestori con le denominazioni al posto dei codici
-      let qrInsert = `INSERT INTO codicesitogestori (numcodsito, nomesito, regione, provincia, comune) 
-                      VALUES (?, ?, ?, ?, ?)`;
-      db.query(qrInsert, [numcodsito, nomesito, regionName, provincia, comuneName], (err, result) => {
-        if (err) {
-          console.log(err, 'Errore durante la query INSERT');
-          return res.status(500).send({
-            message: 'Errore durante l\'inserimento dei dati',
-            error: err
-          });
-        }
-        res.send({
-          message: 'Dati inseriti correttamente nella tabella codicesitogestori'
-        });
+// API DELETE single data
+app.delete('/codicesitogestori/single', (req, res) => {
+  const numcodsito = req.query.numcodsito; // Otteniamo l'ID del numcodsito dalla query string
+  let qr = `DELETE FROM codicesitogestori WHERE numcodsito = ?`;
+  db.query(qr, [numcodsito], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante l\'eliminazione dei dati',
+        error: err
       });
+    }
+    res.send({
+      message: 'Data deleted'
+    });
+  });
+});
+
+// API DELETE - Delete multiple data
+app.delete('/codicesitogestori/multiple', (req, res) => {
+  const numcodsito = req.body; // Array of numcodsito to delete
+
+  if (!numcodsito || numcodsito.length === 0) {
+    return res.status(400).send({
+      message: 'Nessun numcodsito fornito nella richiesta'
+    });
+  }
+
+  let qr = `DELETE FROM codicesitogestori WHERE numcodsito IN (?)`;
+
+  db.query(qr, [numcodsito], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante l\'eliminazione dei dati',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Dati eliminati con successo'
     });
   });
 });
