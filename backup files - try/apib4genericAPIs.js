@@ -26,67 +26,65 @@ db.connect(err => {
   }
 });
 
-/////////////////////// GENERIC POST+PUT APIs ///////////////////////
-
 // API POST - Insert data in DB - GENERIC FORM
-app.post('/:tableName', (req, res) => {
-  const tableName = req.params.tableName;
-  const columns = Object.keys(req.body.fields).join(', ');
-  const values = Object.values(req.body.fields).map(value => {
-    if (value === undefined || value === null) {
-      return 'NULL';
-    } else if (typeof value === 'string') {
-      return `'${value}'`;
-    } else if (typeof value === 'boolean') {
-      return value ? 1 : 0;
-    } else if (value instanceof Date) {
-      return `'${value.toISOString().slice(0, 19).replace('T', ' ')}'`;
-    } else {
-      return value;
-    }
-  }).join(', ');
+// app.post('/:tableName', (req, res) => {
+//   const tableName = req.params.tableName;
+//   const columns = Object.keys(req.body.fields).join(', ');
+//   const values = Object.values(req.body.fields).map(value => {
+//     if (value === undefined || value === null) {
+//       return 'NULL';
+//     } else if (typeof value === 'string') {
+//       return `'${value}'`;
+//     } else if (typeof value === 'boolean') {
+//       return value ? 1 : 0;
+//     } else if (value instanceof Date) {
+//       return `'${value.toISOString().slice(0, 19).replace('T', ' ')}'`;
+//     } else {
+//       return value;
+//     }
+//   }).join(', ');
 
-  const qrInsert = `INSERT INTO ${tableName} (${columns}) VALUES (${values})`;
+//   const qrInsert = `INSERT INTO ${tableName} (${columns}) VALUES (${values})`;
 
-  db.query(qrInsert, (err, result) => {
-    if (err) {
-      console.log(err, 'Errore durante la query INSERT');
-      return res.status(500).send({
-        message: 'Errore durante l\'inserimento dei dati',
-        error: err
-      });
-    }
-    res.send({
-      message: `Dati inseriti correttamente nella tabella ${tableName}`
-    });
-  });
-});
+//   db.query(qrInsert, (err, result) => {
+//     if (err) {
+//       console.log(err, 'Errore durante la query INSERT');
+//       return res.status(500).send({
+//         message: 'Errore durante l\'inserimento dei dati',
+//         error: err
+//       });
+//     }
+//     res.send({
+//       message: `Dati inseriti correttamente nella tabella ${tableName}`
+//     });
+//   });
+// });
 
 // API PUT - Update data for a specific table
-app.put('/:tableName', (req, res) => {
-  const tableName = req.params.tableName;
-  const idField = req.query.idField; // Assuming the field to identify the record is provided as a query parameter
-  const fieldsToUpdate = req.body.fields;
+// app.put('/:tableName', (req, res) => {
+//   const tableName = req.params.tableName;
+//   const idField = req.query.idField; // Assuming the field to identify the record is provided as a query parameter
+//   const fieldsToUpdate = req.body.fields;
 
-  if (!fieldsToUpdate || Object.keys(fieldsToUpdate).length === 0) {
-    return res.status(400).send({ message: 'Il corpo della richiesta non contiene dati validi per l\'aggiornamento' });
-  }
+//   if (!fieldsToUpdate || Object.keys(fieldsToUpdate).length === 0) {
+//     return res.status(400).send({ message: 'Il corpo della richiesta non contiene dati validi per l\'aggiornamento' });
+//   }
 
-  const updateQuery = `UPDATE ${tableName} SET ? WHERE ${idField} = ?`;
+//   const updateQuery = `UPDATE ${tableName} SET ? WHERE ${idField} = ?`;
 
-  db.query(updateQuery, [fieldsToUpdate, req.query.id], (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).send({
-        message: 'Errore durante l\'aggiornamento dei dati',
-        error: err
-      });
-    }
-    res.send({
-      message: 'Dati aggiornati correttamente'
-    });
-  });
-});
+//   db.query(updateQuery, [fieldsToUpdate, req.query.id], (err, result) => {
+//     if (err) {
+//       console.log(err);
+//       return res.status(500).send({
+//         message: 'Errore durante l\'aggiornamento dei dati',
+//         error: err
+//       });
+//     }
+//     res.send({
+//       message: 'Dati aggiornati correttamente'
+//     });
+//   });
+// });
 
 ////////////////////////////// PROTOCOLLO CEM //////////////////////////////////////////
 
@@ -109,7 +107,7 @@ app.get('/protocollocem', (req, res) => {
   });
 });
 
-// API GET all values of the "protocollo" column (200OK)
+// GET all values of the "protocollo" column (200OK)
 app.get('/protocollocem/protocolli', (req, res) => {
   let qr = `SELECT protocollo FROM protocollocem`;
   db.query(qr, (err, result) => {
@@ -290,49 +288,136 @@ app.get('/statoprocedura', (req, res) => {
   });
 });
 
+// API POST - Insert data in DB - FORM
+app.post('/protocollocem', (req, res) => {
+  const columns = Object.keys(req.body).join(', ');
+  const values = Object.values(req.body).map(value => {
+    if (value === undefined || value === null) {
+      return 'NULL';
+    } else if (typeof value === 'string') {
+      return `'${value}'`;
+    } else if (typeof value === 'boolean') {
+      return value ? 1 : 0;
+    } else if (value instanceof Date) {
+      return `'${value.toISOString().slice(0, 19).replace('T', ' ')}'`;
+    } else {
+      return value;
+    }
+  }).join(', ');
+
+  const qrInsert = `INSERT INTO protocollocem (${columns}) VALUES (${values})`;
+
+  db.query(qrInsert, (err, result) => {
+    if (err) {
+      console.log(err, 'Errore durante la query INSERT');
+      return res.status(500).send({
+        message: 'Errore durante l\'inserimento dei dati',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Dati inseriti correttamente nella tabella protocollocem'
+    });
+  });
+});
+
+// API PUT - Update data for protocollocem
+app.put('/protocollocem', (req, res) => {
+  const idprot = req.query.idprot; // Otteniamo l'ID del protocollo dalla query params
+  const {
+    senso,
+    data,
+    protocollo,
+    autore,
+    mittente,
+    destinatario,
+    oggetto,
+    numprotcoll,
+    riscontrogeos,
+    subassegnazione,
+    note,
+    tematica,
+    categoria,
+    sottocategoria,
+    azione,
+    azionedup,
+    protriferime,
+    aie,
+    congiunta,
+    simulazione,
+    numcodsito,
+    statoimpianto,
+    statoprocedura,
+    scadenza,
+    scadenza2,
+    cdsdata,
+    cdsora,
+    notadigos,
+    dirigente,
+    funzionario,
+    commriscontro
+  } = req.body;
+
+  let qr = `UPDATE protocollocem 
+            SET senso=?, data=?, protocollo=?, autore=?, mittente=?, destinatario=?, oggetto=?, numprotcoll=?, riscontrogeos=?, subassegnazione=?, note=?, tematica=?, categoria=?, sottocategoria=?, azione=?, azionedup=?, protriferime=?, aie=?, congiunta=?, simulazione=?, numcodsito=?, statoimpianto=?, statoprocedura=?, scadenza=?, scadenza2=?, cdsdata=?, cdsora=?, notadigos=?, dirigente=?, funzionario=?, commriscontro=?
+            WHERE idprot=?`;
+  db.query(qr, [senso, data, protocollo, autore, mittente, destinatario, oggetto, numprotcoll, riscontrogeos, subassegnazione, note, tematica, categoria, sottocategoria, azione, azionedup, protriferime, aie, congiunta, simulazione, numcodsito, statoimpianto, statoprocedura, scadenza, scadenza2, cdsdata, cdsora, notadigos, dirigente, funzionario, commriscontro, idprot], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante l\'aggiornamento dei dati',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Dati aggiornati correttamente'
+    });
+  });
+});
+
 // API DELETE single data
-// app.delete('/protocollocem/single', (req, res) => {
-//   const idprot = req.query.idprot; // Otteniamo l'ID del protocollo dalla query string
-//   let qr = `DELETE FROM protocollocem WHERE idprot = ?`;
-//   db.query(qr, [idprot], (err, result) => {
-//     if (err) {
-//       console.log(err);
-//       return res.status(500).send({
-//         message: 'Errore durante l\'eliminazione dei dati',
-//         error: err
-//       });
-//     }
-//     res.send({
-//       message: 'Data deleted'
-//     });
-//   });
-// });
+app.delete('/protocollocem/single', (req, res) => {
+  const idprot = req.query.idprot; // Otteniamo l'ID del protocollo dalla query string
+  let qr = `DELETE FROM protocollocem WHERE idprot = ?`;
+  db.query(qr, [idprot], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante l\'eliminazione dei dati',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Data deleted'
+    });
+  });
+});
 
 // API DELETE - Delete multiple data
-// app.delete('/protocollocem/multiple', (req, res) => {
-//   const idProts = req.body; // Array of protocol IDs to delete
+app.delete('/protocollocem/multiple', (req, res) => {
+  const idProts = req.body; // Array of protocol IDs to delete
 
-//   if (!idProts || idProts.length === 0) {
-//     return res.status(400).send({
-//       message: 'Nessun ID protocollo fornito nella richiesta'
-//     });
-//   }
+  if (!idProts || idProts.length === 0) {
+    return res.status(400).send({
+      message: 'Nessun ID protocollo fornito nella richiesta'
+    });
+  }
 
-//   let qr = `DELETE FROM protocollocem WHERE idprot IN (?)`;
+  let qr = `DELETE FROM protocollocem WHERE idprot IN (?)`;
 
-//   db.query(qr, [idProts], (err, result) => {
-//     if (err) {
-//       console.log(err);
-//       return res.status(500).send({
-//         message: 'Errore durante l\'eliminazione dei dati',
-//         error: err
-//       });
-//     }
-//     res.send({
-//       message: 'Dati eliminati con successo'
-//     });
-//   });
-// });
+  db.query(qr, [idProts], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante l\'eliminazione dei dati',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Dati eliminati con successo'
+    });
+  });
+});
 
 
 ////////////////////////////// PROTOCOLLO GEOS //////////////////////////////////////////
@@ -374,6 +459,94 @@ app.get('/codicesitogestoriAll', (req, res) => {
         data: result
       });
     }
+  });
+});
+
+// API POST - Insert data in codicesitogestori
+app.post('/codicesitogestoriAll', (req, res) => {
+  const {
+    numcodsito,
+    numcodsitoold,
+    nomesito,
+    gestore,
+    tipoimpianto,
+    regione,
+    provincia,
+    comune,
+    indirizzo,
+    numlocosscem,
+    locosscem,
+    coordinatelong,
+    coordinatelat,
+    protocollocheck,
+    protcoll,
+    linkcondivisia,
+    dataprot,
+    statoimpianto
+  } = req.body;
+
+  // Verifica se i valori richiesti sono stati forniti nel corpo della richiesta
+  if (!numcodsito || !numcodsitoold || !nomesito || !gestore) {
+    return res.status(400).send({
+      message: 'I campi numcodsito, numcodsitoold, nomesito e gestore sono obbligatori'
+    });
+  }
+
+  const qrInsert = `INSERT INTO codicesitogestori 
+                    (numcodsito, numcodsitoold, nomesito, gestore, tipoimpianto, regione, provincia, comune, indirizzo, numlocosscem, locosscem, coordinatelong, coordinatelat, protocollocheck, protcoll, linkcondivisia, dataprot, statoimpianto) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  db.query(qrInsert, [numcodsito, numcodsitoold, nomesito, gestore, tipoimpianto, regione, provincia, comune, indirizzo, numlocosscem, locosscem, coordinatelong, coordinatelat, protocollocheck, protcoll, linkcondivisia, dataprot, statoimpianto], (err, result) => {
+    if (err) {
+      console.log(err, 'Errore durante la query INSERT');
+      return res.status(500).send({
+        message: 'Errore durante l\'inserimento dei dati',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Dati inseriti correttamente nella tabella codicesitogestori'
+    });
+  });
+});
+
+// API PUT - Update data for codicesitogestori
+app.put('/codicesitogestori', (req, res) => {
+  const numcodsito = req.query.numcodsito; // Otteniamo il valore di numcodsito dalla query params
+  const {
+    numcodsitoold,
+    nomesito,
+    gestore,
+    tipoimpianto,
+    regione,
+    provincia,
+    comune,
+    indirizzo,
+    numlocosscem,
+    locosscem,
+    coordinatelong,
+    coordinatelat,
+    protocollocheck,
+    protcoll,
+    linkcondivisia,
+    dataprot,
+    statoimpianto
+  } = req.body;
+
+  let qr = `UPDATE codicesitogestori 
+            SET numcodsitoold=?, nomesito=?, gestore=?, tipoimpianto=?, regione=?, provincia=?, comune=?, indirizzo=?, numlocosscem=?, locosscem=?, coordinatelong=?, coordinatelat=?, protocollocheck=?, protcoll=?, linkcondivisia=?, dataprot=?, statoimpianto=?
+            WHERE numcodsito=?`;
+  db.query(qr, [numcodsitoold, nomesito, gestore, tipoimpianto, regione, provincia, comune, indirizzo, numlocosscem, locosscem, coordinatelong, coordinatelat, protocollocheck, protcoll, linkcondivisia, dataprot, statoimpianto, numcodsito], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante l\'aggiornamento dei dati',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Dati aggiornati correttamente'
+    });
   });
 });
 
@@ -471,6 +644,50 @@ app.get('/protocollocem/protocolli', (req, res) => {
   });
 });
 
+// API DELETE single data
+app.delete('/codicesitogestori/single', (req, res) => {
+  const numcodsito = req.query.numcodsito; // Otteniamo l'ID del numcodsito dalla query string
+  let qr = `DELETE FROM codicesitogestori WHERE numcodsito = ?`;
+  db.query(qr, [numcodsito], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante l\'eliminazione dei dati',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Data deleted'
+    });
+  });
+});
+
+// API DELETE - Delete multiple data
+app.delete('/codicesitogestori/multiple', (req, res) => {
+  const numcodsito = req.body; // Array of numcodsito to delete
+
+  if (!numcodsito || numcodsito.length === 0) {
+    return res.status(400).send({
+      message: 'Nessun numcodsito fornito nella richiesta'
+    });
+  }
+
+  let qr = `DELETE FROM codicesitogestori WHERE numcodsito IN (?)`;
+
+  db.query(qr, [numcodsito], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante l\'eliminazione dei dati',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Dati eliminati con successo'
+    });
+  });
+});
+
 ////////////////////////////// SCHEDA RADIO ELETTRICA (CODICESITOGESTORI2) //////////////////////////////////////////
 
 // API GET all data from "codicesitogestori2" table - 200OK
@@ -511,63 +728,7 @@ app.get('/codicesitogestori/numcodsito', (req, res) => {
   });
 });
 
-//////////////// GENERIC DELETE APIs  ///////////
-
-// API DELETE single data for any table
-app.delete('/:tableName/single', (req, res) => {
-  const tableName = req.params.tableName;
-  const primaryKey = req.query.primaryKey; // Assuming the primary key field name is provided as a query parameter
-  const primaryKeyValue = req.query.primaryKeyValue; // Assuming the primary key value is provided as a query parameter
-
-  if (!primaryKey || !primaryKeyValue) {
-    return res.status(400).send({
-      message: 'Il campo chiave primaria e il suo valore devono essere forniti come parametri di query'
-    });
-  }
-
-  let qr = `DELETE FROM ${tableName} WHERE ${primaryKey} = ?`;
-  db.query(qr, [primaryKeyValue], (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).send({
-        message: 'Errore durante l\'eliminazione dei dati',
-        error: err
-      });
-    }
-    res.send({
-      message: 'Dati eliminati con successo'
-    });
-  });
-});
-
-// API DELETE - Delete multiple data for any table
-app.delete('/:tableName/multiple', (req, res) => {
-  const tableName = req.params.tableName;
-  const primaryKey = req.query.primaryKey; // Assuming the primary key field name is provided as a query parameter
-  const primaryKeyValues = req.body; // Array of primary key values to delete
-
-  if (!primaryKey || primaryKeyValues.length === 0) {
-    return res.status(400).send({
-      message: 'Il campo chiave primaria e almeno un valore devono essere forniti come parametri'
-    });
-  }
-
-  let qr = `DELETE FROM ${tableName} WHERE ${primaryKey} IN (?)`;
-
-  db.query(qr, [primaryKeyValues], (err, result) => {
-    if (err) {
-      console.log(err);
-      return res.status(500).send({
-        message: 'Errore durante l\'eliminazione dei dati',
-        error: err
-      });
-    }
-    res.send({
-      message: 'Dati eliminati con successo'
-    });
-  });
-});
-
+///////////////////////////
 
 // CHECK SERVER
 app.listen(3000, () => {
