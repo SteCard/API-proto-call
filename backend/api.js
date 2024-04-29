@@ -27,7 +27,6 @@ db.connect(err => {
 });
 
 /////////////////////// GENERIC POST+PUT APIs ///////////////////////
-
 // API POST - Insert data in DB - GENERIC FORM
 app.post('/:tableName', (req, res) => {
   const tableName = req.params.tableName;
@@ -89,7 +88,6 @@ app.put('/:tableName', (req, res) => {
 });
 
 ////////////////////////////// PROTOCOLLO CEM //////////////////////////////////////////
-
 // API GET all data from "protocollocem" table - 200OK
 app.get('/protocollocem', (req, res) => {
   let qr = `SELECT * FROM protocollocem`;
@@ -290,53 +288,7 @@ app.get('/statoprocedura', (req, res) => {
   });
 });
 
-// API DELETE single data
-// app.delete('/protocollocem/single', (req, res) => {
-//   const idprot = req.query.idprot; // Otteniamo l'ID del protocollo dalla query string
-//   let qr = `DELETE FROM protocollocem WHERE idprot = ?`;
-//   db.query(qr, [idprot], (err, result) => {
-//     if (err) {
-//       console.log(err);
-//       return res.status(500).send({
-//         message: 'Errore durante l\'eliminazione dei dati',
-//         error: err
-//       });
-//     }
-//     res.send({
-//       message: 'Data deleted'
-//     });
-//   });
-// });
-
-// API DELETE - Delete multiple data
-// app.delete('/protocollocem/multiple', (req, res) => {
-//   const idProts = req.body; // Array of protocol IDs to delete
-
-//   if (!idProts || idProts.length === 0) {
-//     return res.status(400).send({
-//       message: 'Nessun ID protocollo fornito nella richiesta'
-//     });
-//   }
-
-//   let qr = `DELETE FROM protocollocem WHERE idprot IN (?)`;
-
-//   db.query(qr, [idProts], (err, result) => {
-//     if (err) {
-//       console.log(err);
-//       return res.status(500).send({
-//         message: 'Errore durante l\'eliminazione dei dati',
-//         error: err
-//       });
-//     }
-//     res.send({
-//       message: 'Dati eliminati con successo'
-//     });
-//   });
-// });
-
-
 ////////////////////////////// PROTOCOLLO GEOS //////////////////////////////////////////
-
 // API GET all data from "protocollocem" table - 200OK
 app.get('/protocollogeos', (req, res) => {
   let qr = `SELECT * FROM protocollogeos`;
@@ -357,7 +309,6 @@ app.get('/protocollogeos', (req, res) => {
 });
 
 ////////////////////////////// CODICE SITO GESTORI //////////////////////////////////////////
-
 // API GET all data from "codicesitogestori" table - 200OK
 app.get('/codicesitogestoriAll', (req, res) => {
   let qr = `SELECT * FROM codicesitogestori`;
@@ -472,7 +423,6 @@ app.get('/protocollocem/protocolli', (req, res) => {
 });
 
 ////////////////////////////// SCHEDA RADIO ELETTRICA (CODICESITOGESTORI2) //////////////////////////////////////////
-
 // API GET all data from "codicesitogestori2" table - 200OK
 app.get('/codicesitogestori2All', (req, res) => {
   let qr = `SELECT * FROM codicesitogestori2`;
@@ -492,7 +442,7 @@ app.get('/codicesitogestori2All', (req, res) => {
   });
 });
 
-// API GET all data from "codicesitogestori" table - 200OK
+// API GET Numcodsito from "codicesitogestori" table - 200OK
 app.get('/codicesitogestori/numcodsito', (req, res) => {
   let qr = `SELECT numcodsito FROM codicesitogestori`;
   db.query(qr, (err, result) => {
@@ -511,8 +461,127 @@ app.get('/codicesitogestori/numcodsito', (req, res) => {
   });
 });
 
-//////////////// GENERIC DELETE APIs  ///////////
+////////////////////////////// RILEVAZIONI SITO //////////////////////////////////////////
+// API GET all data from "rilevazionisito" table - 200OK
+app.get('/rilevazionisitoAll', (req, res) => {
+  let qr = `SELECT * FROM rilevazionisito`;
+  db.query(qr, (err, result) => {
+    if (err) {
+      console.log(err, 'Errore durante la query GET');
+      res.status(500).send({
+        message: 'Errore durante il recupero dei dati',
+        error: err
+      });
+    } else {
+      res.send({
+        message: 'Dati recuperati dalla tabella rilevazionisito',
+        data: result
+      });
+    }
+  });
+});
 
+// API GET numcodsito from "rilevazionisito" table - 200OK
+app.get('/rilevazionisito/numcodsito', (req, res) => {
+  let qr = `SELECT numcodsito FROM rilevazionisito`;
+  db.query(qr, (err, result) => {
+    if (err) {
+      console.log(err, 'Errore durante la query GET');
+      res.status(500).send({
+        message: 'Errore durante il recupero dei dati',
+        error: err
+      });
+    } else {
+      res.send({
+        message: 'Tutti i dati dalla tabella rilevazionisito',
+        data: result
+      });
+    }
+  });
+});
+
+////////////////////////////// GESTORI CEM //////////////////////////////////////////
+// API GET all data from "gestori" table - 200OK
+app.get('/gestoriAll', (req, res) => {
+  let qr = `SELECT * FROM gestori`;
+  db.query(qr, (err, result) => {
+    if (err) {
+      console.log(err, 'Errore durante la query GET');
+      res.status(500).send({
+        message: 'Errore durante il recupero dei dati',
+        error: err
+      });
+    } else {
+      res.send({
+        message: 'Tutti i dati dalla tabella gestori',
+        data: result
+      });
+    }
+  });
+});
+
+////////////////////////////// MISURE CEM //////////////////////////////////////////
+// ???? WHICH TABLE ????
+// API GET all data from "misurecem" table - 200OK
+app.get('/misurecemAll', (req, res) => {
+  let qr = `SELECT * FROM misurecem`;
+  db.query(qr, (err, result) => {
+    if (err) {
+      console.log(err, 'Errore durante la query GET');
+      res.status(500).send({
+        message: 'Errore durante il recupero dei dati',
+        error: err
+      });
+    } else {
+      res.send({
+        message: 'Tutti i dati dalla tabella misurecem',
+        data: result
+      });
+    }
+  });
+});
+
+////////////////////////////// SONDE STRUM //////////////////////////////////////////
+// API GET all data from "sondestrum" table - 200OK
+app.get('/sondestrumAll', (req, res) => {
+  let qr = `SELECT * FROM sondestrum`;
+  db.query(qr, (err, result) => {
+    if (err) {
+      console.log(err, 'Errore durante la query GET');
+      res.status(500).send({
+        message: 'Errore durante il recupero dei dati',
+        error: err
+      });
+    } else {
+      res.send({
+        message: 'Tutti i dati dalla tabella sondestrum',
+        data: result
+      });
+    }
+  });
+});
+
+////////////////////////////// STRUMENTI CEM //////////////////////////////////////////
+// API GET all data from "strumenticem" table - 200OK
+app.get('/strumenticemAll', (req, res) => {
+  let qr = `SELECT * FROM strumenticem`;
+  db.query(qr, (err, result) => {
+    if (err) {
+      console.log(err, 'Errore durante la query GET');
+      res.status(500).send({
+        message: 'Errore durante il recupero dei dati',
+        error: err
+      });
+    } else {
+      res.send({
+        message: 'Tutti i dati dalla tabella strumenticem',
+        data: result
+      });
+    }
+  });
+});
+
+//////////////// GENERIC DELETE APIs  ///////////
 // API DELETE single data for any table
 app.delete('/:tableName/single', (req, res) => {
   const tableName = req.params.tableName;
