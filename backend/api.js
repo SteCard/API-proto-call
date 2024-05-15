@@ -61,19 +61,70 @@ app.post('/:tableName', (req, res) => {
   });
 });
 
-// API PUT - Update data for a specific table
+// app.post('/:tableName', (req, res) => {
+//   const tableName = req.params.tableName;
+//   const fields = req.body.fields;
+
+//   // Function to handle different types of values
+//   const formatValue = (value) => {
+//     if (value === undefined || value === null) {
+//       return 'NULL';
+//     } else if (typeof value === 'string') {
+//       return `'${value}'`;
+//     } else if (typeof value === 'boolean') {
+//       return value ? 1 : 0;
+//     } else if (value instanceof Date) {
+//       return `'${value.toISOString().slice(0, 19).replace('T', ' ')}'`;
+//     } else {
+//       return value;
+//     }
+//   };
+
+//   // Function to format array values
+//   const formatArrayValue = (value) => {
+//     return Array.isArray(value) ? `(${value.map(val => formatValue(val)).join(', ')})` : formatValue(value);
+//   };
+
+//   const columns = Object.keys(fields).join(', ');
+//   const values = Object.values(fields).map(value => formatArrayValue(value)).join(', ');
+
+//   const qrInsert = `INSERT INTO ${tableName} (${columns}) VALUES (${values})`;
+
+//   db.query(qrInsert, (err, result) => {
+//     if (err) {
+//       console.log(err, 'Error during INSERT query');
+//       return res.status(500).send({
+//         message: 'Error during data insertion',
+//         error: err
+//       });
+//     }
+//     res.send({
+//       message: `Data inserted successfully into table ${tableName}`
+//     });
+//   });
+// });
+
+// API PUT - Update data for a specific table and ID
 app.put('/:tableName', (req, res) => {
   const tableName = req.params.tableName;
-  const idField = req.query.idField; // Assuming the field to identify the record is provided as a query parameter
+  const idFieldName = Object.keys(req.query)[0]; // Assuming only one query parameter is provided for ID
+  const idFieldValue = req.query[idFieldName]; // Value of the ID field
   const fieldsToUpdate = req.body.fields;
+
+  if (!idFieldName || !idFieldValue) {
+    return res.status(400).send({ message: 'Il campo ID e il suo valore devono essere forniti come parametro di query' });
+  }
 
   if (!fieldsToUpdate || Object.keys(fieldsToUpdate).length === 0) {
     return res.status(400).send({ message: 'Il corpo della richiesta non contiene dati validi per l\'aggiornamento' });
   }
 
-  const updateQuery = `UPDATE ${tableName} SET ? WHERE ${idField} = ?`;
+  const columnsToUpdate = Object.keys(fieldsToUpdate).map(column => `${column} = ?`).join(', ');
+  const valuesToUpdate = Object.values(fieldsToUpdate);
 
-  db.query(updateQuery, [fieldsToUpdate, req.query.id], (err, result) => {
+  const updateQuery = `UPDATE ${tableName} SET ${columnsToUpdate} WHERE ${idFieldName} = ?`;
+
+  db.query(updateQuery, [...valuesToUpdate, idFieldValue], (err, result) => {
     if (err) {
       console.log(err);
       return res.status(500).send({
