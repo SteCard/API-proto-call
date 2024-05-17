@@ -66,7 +66,7 @@
             selectElement.appendChild(emptyOption);
     
             try {
-                const response = await axios.get('http://localhost:3000/gi_regioni');
+                const response = await axios.get('http://localhost:3000/codicesitogestori/regione');
                 const regioni = response.data.data; // Ottieni l'array delle regioni
                 regioni.forEach(regione => {
                     const option = document.createElement('option');
@@ -96,7 +96,7 @@
             selectElement.appendChild(emptyOption);
     
             try {
-                const response = await axios.get(`http://localhost:3000/gi_province?regione=${regioneSelezionata}`);
+                const response = await axios.get(`http://localhost:3000/codicesitogestori/provincia?regione=${regioneSelezionata}`);
                 const province = response.data.data; // Ottieni l'array delle province
                 province.forEach(provincia => {
                     const option = document.createElement('option');
@@ -123,7 +123,7 @@
             selectElement.appendChild(emptyOption);
     
             try {
-                const response = await axios.get(`http://localhost:3000/gi_comuni?provincia=${provinciaSelezionata}`);
+                const response = await axios.get(`http://localhost:3000/codicesitogestori/comune?provincia=${provinciaSelezionata}`);
                 const comuni = response.data.data; // Ottieni l'array dei comuni
                 comuni.forEach(comune => {
                     const option = document.createElement('option');

@@ -212,10 +212,10 @@ app.get('/senso', (req, res) => {
   });
 });
 
-
-// API GET dei valori "tematica" (200OK)
-app.get('/tematiche', (req, res) => {
-  let qr = `SELECT tipotematica FROM tematiche`; 
+/// TEMATICHE CATEGORIE SOTTOCATEGORIE ///
+// API to GET tematiche
+app.get('/tematica', (req, res) => {
+  let qr = `SELECT idtematiche AS codice, tipotematica AS denominazione FROM tematiche`;
   db.query(qr, (err, result) => {
     if (err) {
       console.log(err);
@@ -230,6 +230,46 @@ app.get('/tematiche', (req, res) => {
     });
   });
 });
+
+// API to GET categorie by tematica
+app.get('/categoria', (req, res) => {
+  const tematicaCodice = req.query.tematica;
+  let qr = `SELECT idcat AS codice, tipocategoria AS denominazione FROM categorieall WHERE idtematiche = ?`;
+  db.query(qr, [tematicaCodice], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante la query GET per le categorie',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Categorie recuperate correttamente',
+      data: result
+    });
+  });
+});
+
+// API to GET sottocategorie by categoria
+app.get('/sottocategoria', (req, res) => {
+  const categoriaId = req.query.categoria;
+  let qr = `SELECT idsotcat AS codice, tiposotcat AS denominazione FROM sottocategorieall WHERE idcat = ?`;
+  db.query(qr, [categoriaId], (err, result) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).send({
+        message: 'Errore durante la query GET per le sottocategorie',
+        error: err
+      });
+    }
+    res.send({
+      message: 'Sottocategorie recuperate correttamente',
+      data: result
+    });
+  });
+});
+
+/////
 
 // API GET dei valori "catcem" (200OK)
 app.get('/catcem', (req, res) => {
