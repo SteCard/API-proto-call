@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  nodeapi:
+    build:
+      context: .
+    ports:
+      - '3001:3000'  # Espone la porta 3000 del container come 3001 sull'host
+    environment:
+      DB_HOST: host.docker.internal
+      DB_USER: root
+      DB_PASSWORD: ''
+      DB_NAME: dropfaci_arpab_2
+      DB_PORT: 3307
+
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: ''  # Vuoto, ma richiesto
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'  # Permette di avere una password vuota
+      MYSQL_DATABASE: dropfaci_arpab_2
+    ports:
+      - '3307:3306'  # Espone la porta 3306 del container come 3307 sull'host
+    volumes:
+      - db-data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: db
+    ports:
+      - '8080:80'  # Espone la porta 80 del container come 8080 sull'host
+
+volumes:
+  db-data:

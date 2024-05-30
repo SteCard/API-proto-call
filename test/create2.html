@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aggiungi SITO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body data-bs-theme="dark">
+    <div class="container">
+        <h1 class="mt-5 mb-4 text-center">Aggiungi SITO</h1>
+
+        <!-- FORM -->
+        <form id="createForm">
+            <div class="mb-3">
+                <label for="numcodsito" class="form-label">Numero codice sito:</label>
+                <input type="text" class="form-control" id="numcodsito" name="numcodsito" required>
+            </div>
+            <div class="mb-3">
+                <label for="nomesito" class="form-label">Nome Sito:</label>
+                <input type="text" class="form-control" id="nomesito" name="nomesito" required>
+            </div>
+            <div class="mb-3">
+                <label for="regioneSelect" class="form-label">Regione:</label>
+                <select id="regioneSelect" class="form-select" required></select>
+            </div>
+            <div class="mb-3">
+                <label for="provinciaSelect" class="form-label">Provincia:</label>
+                <select id="provinciaSelect" class="form-select" required></select>
+            </div>
+            <div class="mb-3">
+                <label for="comuneSelect" class="form-label">Comune:</label>
+                <select id="comuneSelect" class="form-select" required></select>
+            </div>
+            <button type="submit" class="btn btn-primary">SALVA</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        async function populateDropdown(url, selectElement) {
+            try {
+                const response = await axios.get(url);
+                const data = response.data.data;
+                selectElement.innerHTML = ''; // Clear dropdown
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.text = item.denominazione_regione; // column name
+                    option.value = item.codice_regione; // column name
+                    selectElement.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+    
+        // Funzione per popolare il dropdown delle REGIONI
+        async function populateRegioniDropdown() {
+            const selectElement = document.getElementById('regioneSelect');
+            selectElement.innerHTML = ''; // Clear dropdown
+            
+            // Aggiungi un'opzione vuota come prima opzione
+            const emptyOption = document.createElement('option');
+            emptyOption.text = 'Seleziona una regione';
+            emptyOption.value = '';
+            selectElement.appendChild(emptyOption);
+    
+            try {
+                const response = await axios.get('http://localhost:3000/codicesitogestori/regione');
+                const regioni = response.data.data; // Ottieni l'array delle regioni
+                regioni.forEach(regione => {
+                    const option = document.createElement('option');
+                    option.text = regione.denominazione; // Accedi alla denominazione della regione
+                    option.value = regione.codice; // Assegna il codice come valore dell'opzione
+                    selectElement.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Errore durante la richiesta GET per le regioni:', error);
+            }
+        }
+    
+        // Funzione per gestire il cambiamento della regione nel dropdown delle regioni
+        document.getElementById('regioneSelect').addEventListener('change', function() {
+            const regioneSelezionata = this.value; // Ottieni il valore della regione selezionata
+            populateProvinceDropdown(regioneSelezionata); // Popola il dropdown delle province con le province corrispondenti
+        });
+    
+        // Funzione per popolare il dropdown delle PROVINCE
+        async function populateProvinceDropdown(regioneSelezionata) {
+            const selectElement = document.getElementById('provinciaSelect');
+            selectElement.innerHTML = ''; // Pulisci il dropdown
+
+            // Aggiungi un'opzione vuota come prima opzione
+            const emptyOption = document.createElement('option');
+            emptyOption.value = '';
+            selectElement.appendChild(emptyOption);
+    
+            try {
+                const response = await axios.get(`http://localhost:3000/codicesitogestori/provincia?regione=${regioneSelezionata}`);
+                const province = response.data.data; // Ottieni l'array delle province
+                province.forEach(provincia => {
+                    const option = document.createElement('option');
+                    option.text = provincia.denominazione; // Accedi alla denominazione della provincia
+                    option.value = provincia.codice; // Assegna il codice come valore dell'opzione
+                    selectElement.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Errore durante la richiesta GET per le province:', error);
+            }
+        }
+    
+        // Popola i dropdown delle regioni all'avvio della pagina
+        populateRegioniDropdown();
+    
+        // Funzione per popolare il dropdown dei COMUNI
+        async function populateComuniDropdown(provinciaSelezionata) {
+            const selectElement = document.getElementById('comuneSelect');
+            selectElement.innerHTML = ''; // Pulisci il dropdown
+
+            // Aggiungi un'opzione vuota come prima opzione
+            const emptyOption = document.createElement('option');
+            emptyOption.value = '';
+            selectElement.appendChild(emptyOption);
+    
+            try {
+                const response = await axios.get(`http://localhost:3000/codicesitogestori/comune?provincia=${provinciaSelezionata}`);
+                const comuni = response.data.data; // Ottieni l'array dei comuni
+                comuni.forEach(comune => {
+                    const option = document.createElement('option');
+                    option.text = comune.denominazione; // Accedi alla denominazione del comune
+                    option.value = comune.codice; // Assegna il codice come valore dell'opzione
+                    selectElement.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Errore durante la richiesta GET per i comuni:', error);
+            }
+        }
+    
+        // Funzione per gestire il cambiamento nella selezione della provincia
+        document.getElementById('provinciaSelect').addEventListener('change', function() {
+            const provinciaSelezionata = this.value; // Ottieni il valore della provincia selezionata
+            populateComuniDropdown(provinciaSelezionata); // Popola il dropdown dei comuni con i comuni corrispondenti
+        });
+    
+        // Funzione per gestire l'invio del modulo
+        document.getElementById('createForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const numcodsito = document.getElementById('numcodsito').value;
+            const nomesito = document.getElementById('nomesito').value;
+            const regione = document.getElementById('regioneSelect').value;
+            const provincia = document.getElementById('provinciaSelect').value;
+            const comune = document.getElementById('comuneSelect').value;
+    
+            try {
+                const response = await axios.post('http://localhost:3000/codicesitogestori', {
+                    numcodsito,
+                    nomesito,
+                    regione,
+                    provincia,
+                    comune
+                });
+                console.log('Data inserted successfully:', response.data.message);
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Error while submitting form:', error);
+            }
+        });
+    </script>
+</body>
+</html>
